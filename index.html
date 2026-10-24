@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SQL Visual Course — ENG ADAM AJILI</title>
+<style>
+  :root{
+    --bg:#0d0f12; --panel:#171a1f; --panel2:#1e2228; --line:#2b3038;
+    --text:#e8eaed; --muted:#9aa0a6; --accent:#8ab4f8; --null:#f0a848; --ok:#81c995; --bad:#f28b82; --purple:#c58af9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:15px/1.55 system-ui,"Segoe UI",Roboto,sans-serif}
+  header{display:flex;align-items:center;gap:14px;padding:14px 22px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(13,15,18,.96);backdrop-filter:blur(6px);z-index:5}
+  header h1{font-size:18px;margin:0;font-weight:600}
+  nav{display:flex;gap:6px;margin-left:auto}
+  nav a{color:var(--muted);text-decoration:none;padding:6px 12px;border:1px solid var(--line);border-radius:20px;font-size:13px}
+  nav a:hover,nav a.on{color:var(--accent);border-color:var(--accent)}
+  .byline{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:20px;padding:5px 12px}
+  .byline b{color:var(--ok)}
+  #navtoggle,#navbg,#navclose{display:none}
+  .wrap{display:grid;grid-template-columns:250px minmax(0,1fr);gap:0;min-height:calc(100vh - 57px)}
+  aside{border-right:1px solid var(--line);padding:16px 12px;position:sticky;top:57px;align-self:start;max-height:calc(100vh - 57px);overflow:auto}
+  aside h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:16px 8px 6px}
+  aside button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--text);font:inherit;font-size:14px;padding:7px 10px;border-radius:8px;cursor:pointer}
+  aside button:hover{background:var(--panel2)}
+  aside button.on{background:var(--panel2);color:var(--accent);font-weight:600}
+  main{padding:26px 30px 70px;max-width:1080px;min-width:0}
+  h2{font-size:24px;margin:0 0 4px}
+  .what{color:var(--muted);margin:0 0 20px;font-size:15px}
+  .what b{color:var(--accent)}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:18px}
+  .panel h4{margin:0 0 12px;font-size:14px;color:var(--accent);font-weight:600}
+  .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end}
+  label.k{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:4px}
+  input,select{background:var(--panel);border:1px solid var(--line);color:var(--text);font:inherit;padding:6px 9px;border-radius:8px}
+  input:focus,select:focus{outline:none;border-color:var(--accent)}
+  input.plain{background:transparent;border-color:transparent;padding:3px 6px}
+  input.plain:hover{border-color:var(--line)}
+  button.act{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:6px 12px;font:inherit;cursor:pointer}
+  button.act:hover{border-color:var(--accent);color:var(--accent)}
+  .chip{display:inline-block;padding:2px 10px;border:1px solid var(--line);border-radius:16px;font-size:13px;margin:2px;cursor:pointer;background:var(--panel2)}
+  .chip:hover{border-color:var(--accent)}
+  .chip.on{border-color:var(--ok);color:var(--ok)}
+  table{border-collapse:collapse;width:100%}
+  th,td{text-align:left;padding:6px 12px 6px 0;white-space:nowrap}
+  th{border-bottom:1px solid var(--line);color:var(--accent);font-weight:600}
+  td input{background:transparent;border:1px solid transparent;color:var(--text);font:inherit;padding:3px 6px;border-radius:6px;width:100%;max-width:150px}
+  td input:hover{border-color:var(--line)} td input:focus{outline:none;border-color:var(--accent);background:var(--panel2)}
+  .res td{border-bottom:1px solid #20242a;padding:7px 14px 7px 0}
+  .res th{padding:7px 14px 7px 0}
+  .null{color:var(--null);font-style:italic}
+  tr.dim td{opacity:.35} tr.dim td input{opacity:1}
+  tr.keep td{background:rgba(129,201,149,.08)}
+  tr.gone td{opacity:.4} tr.gone td .val{text-decoration:line-through}
+  .x{padding:0 8px;color:var(--muted);border:none;background:none;cursor:pointer;font-size:16px}
+  .x:hover{color:var(--bad)}
+  pre{margin:0;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;overflow:auto;color:#cfe3ff;font:13px/1.65 ui-monospace,"Cascadia Mono",Consolas,monospace}
+  textarea.sqlbox{display:block;width:100%;min-height:104px;resize:vertical;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px 16px;color:#cfe3ff;font:13px/1.65 ui-monospace,"Cascadia Mono",Consolas,monospace;white-space:pre;overflow:auto;tab-size:2}
+  textarea.sqlbox:focus{outline:none;border-color:var(--accent)}
+  .sqlbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0 2px}
+  .play-res{margin-top:16px;border-top:1px dashed var(--line);padding-top:14px}
+  .play-res h4{margin:0 0 10px;font-size:14px;color:var(--purple);font-weight:600}
+  .kw{color:var(--accent);font-weight:600} .str{color:var(--ok)} .num{color:var(--purple)} .fn{color:#67d4c5} .err{color:var(--bad)}
+  .badge{font-size:11px;padding:2px 8px;border-radius:14px;border:1px solid var(--line);white-space:nowrap}
+  .b-ok{color:var(--ok);border-color:var(--ok)} .b-no{color:var(--bad)} .b-mut{color:var(--muted)} .b-warn{color:var(--null);border-color:var(--null)}
+  .note{color:var(--muted);font-size:14px;margin:10px 0 0}
+  .note b{color:var(--text)}
+  .flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .fstep{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:var(--panel2);font-size:13px}
+  .fstep.on{border-color:var(--accent);color:var(--accent)}
+  .fstep.dead{opacity:.4;text-decoration:line-through}
+  .arrow{color:var(--muted)}
+  .chars{display:inline-flex;gap:3px;flex-wrap:wrap;vertical-align:middle}
+  .ch{min-width:24px;text-align:center;border:1px solid var(--line);border-radius:5px;padding:3px 4px;font-family:ui-monospace,Consolas,monospace;font-size:13px}
+  .ch.on{border-color:var(--accent);background:rgba(138,180,248,.18)}
+  .ch.wild{border-style:dashed;border-color:var(--purple);color:var(--purple)}
+  .ch i{display:block;font-size:9px;color:var(--muted);font-style:normal}
+  .buckets{display:flex;gap:12px;flex-wrap:wrap}
+  .bucket{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--panel2);min-width:130px}
+  .bucket h5{margin:0 0 8px;font-size:13px;color:var(--purple)}
+  .bucket.dead{opacity:.35}
+  .val{font-family:ui-monospace,Consolas,monospace}
+  .big{font-size:20px;font-family:ui-monospace,Consolas,monospace}
+  footer{border-top:1px solid var(--line);padding:18px 30px;color:var(--muted);font-size:13px}
+  footer b{color:var(--ok)}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .side{display:flex;gap:26px;flex-wrap:wrap;align-items:flex-start}
+  .side>.sidecol{flex:1 1 300px;min-width:0}
+  .rowbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+
+  /* ---------- phones & small tablets ---------- */
+  @media (max-width:860px){
+    html{-webkit-text-size-adjust:100%}
+    header{padding:9px 12px;gap:8px}
+    header h1{font-size:15px;line-height:1.3}
+    .byline{margin-left:auto;font-size:10px;line-height:1;padding:5px 9px}
+    #navtoggle{display:inline-block;padding:8px 11px;font-size:14px;line-height:1}
+    #navbg{display:block;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:19;opacity:0;pointer-events:none;transition:opacity .18s ease}
+    body.navopen #navbg{opacity:1;pointer-events:auto}
+    .wrap{grid-template-columns:minmax(0,1fr);min-height:0}
+    aside{position:fixed;top:0;left:0;width:min(80vw,300px);height:100vh;height:100dvh;z-index:20;
+          align-self:auto;max-height:none;margin:0;
+          overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 12px 30px;background:var(--bg);
+          border-right:1px solid var(--line);transform:translateX(-103%);transition:transform .18s ease}
+    body.navopen aside{transform:none;box-shadow:0 0 40px rgba(0,0,0,.6)}
+    #navclose{display:block;width:auto;margin:0 0 8px auto;padding:8px 15px;font-size:20px;line-height:1}
+    aside h3{margin:18px 8px 6px}
+    #navclose+h3{margin-top:2px}
+    aside button{font-size:15px;padding:12px}
+    aside button.on{background:var(--panel2)}
+    main{padding:16px 13px 60px}
+    h2{font-size:20px}
+    .what{font-size:14px;margin:0 0 16px}
+    .panel{padding:13px 12px;border-radius:10px;margin-bottom:14px}
+    .panel h4{font-size:13px;margin-bottom:10px;white-space:normal}
+    .controls{gap:10px}
+    .controls>div{flex:1 1 100%;min-width:0!important}
+    .controls input,.controls select{max-width:100%}
+    input,select,textarea.sqlbox{font-size:16px}
+    td input{font-size:16px}
+    button.act{padding:10px 14px}
+    .chip{padding:8px 13px;font-size:14px;margin:4px 4px 0 0}
+    .x{font-size:22px;padding:2px 10px}
+    th,td{padding:7px 14px 7px 0}
+    pre{font-size:12px;padding:11px 12px}
+    textarea.sqlbox{min-height:136px;padding:11px 12px}
+    .sqlbar{gap:6px}
+    .sqlbar .badge{font-size:10px;padding:2px 6px}
+    .side{gap:16px}
+    .side>.sidecol{flex:1 1 100%}
+    .buckets{gap:8px}
+    .bucket{flex:1 1 100%;min-width:0}
+    .big{font-size:17px}
+    .note{font-size:13px}
+    footer{padding:16px 14px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <button id="navtoggle" class="act" aria-label="Open the topic list">☰ Topics</button>
+  <h1>SQL Visual Course</h1>
+  <span class="byline">by <b>ENG ADAM AJILI</b> · ENIS GI1</span>
+</header>
+<div id="navbg"></div>
+<div class="wrap">
+<aside id="menu"></aside>
+<main id="main"></main>
+</div>
+<footer>
+  Built for revision — every sample table on this page is editable: click any cell, add or delete rows and columns, and the result recomputes instantly.<br>
+  Every topic ends with a <b>SQL playground</b>: the query is already written for you, edit it and the page runs what <i>you</i> typed — SELECT, INSERT, UPDATE, DELETE, COMMIT and ROLLBACK, with Oracle-style error messages.<br>
+  <b>ENG ADAM AJILI</b> · single-file HTML, no server, works offline.
+</footer>
+
+<script>
+/* ================= shared tiny database ================= */
+const DB = {
+  PRODUIT:{name:'PRODUIT', cols:['ID','NOM','CAT','PRIX'], rows:[
+    ['1','apple','fruit','3'],['2','bananas','fruit','2'],['3','carrots','vegetable',null]]},
+  FOURNISSEUR:{name:'FOURNISSEUR', cols:['CODE','NOM','PRODUIT'], rows:[
+    ['F1','apple supplier','apple'],['F2','bananas supplier','bananas'],['F3','date supplier','dates']]},
+  A:{name:'BASKET1', cols:['NOM'], rows:[['apple'],['bananas'],['carrots']]},
+  B:{name:'BASKET2', cols:['NOM'], rows:[['bananas'],['dates'],['mango']]}
+};
+const T = k => DB[k];
+/* the readable column of a table (its name), used as the label in row-by-row panels */
+const LC = t => t.cols.length > 1 ? 1 : 0;
+
+/* ================= tiny expression / condition engine ================= */
+const norm = v => (v === null || v === undefined || v === '') ? null : v;
+const isNum = v => v !== null && v !== undefined && v !== '' && !isNaN(Number(v));
+const unquote = s => { const t = String(s).trim(); return /^'(.*)'$/.test(t) ? RegExp.$1 : t; };
+function splitTop(s, ops){ let d=0,q=false; for(let i=s.length-1;i>0;i--){const c=s[i]; if(c==="'")q=!q; if(q)continue; if(c===')')d++; else if(c==='(')d--; else if(d===0&&ops.includes(c))return [s.slice(0,i),c,s.slice(i+1)];} return null; }
+function splitArgs(s){ const out=[]; let d=0,q=false,cur=''; for(const c of s){ if(c==="'")q=!q; if(!q&&c==='(')d++; if(!q&&c===')')d--; if(!q&&c===','&&d===0){out.push(cur);cur='';} else cur+=c; } out.push(cur); return out; }
+const AGGS = ['COUNT','SUM','AVG','MIN','MAX'];
+function evalExpr(raw, row, cols, agg){
+  const s = String(raw ?? '').trim(); if(!s) return {err:'empty'};
+  let m;
+  if (/^CASE\b/i.test(s) && /\bEND$/i.test(s)) return evalCaseExpr(s,row,cols,agg);
+  const bar = indexOfTop(s,'||');
+  if (bar > 0) { const a=evalExpr(s.slice(0,bar),row,cols,agg), b=evalExpr(s.slice(bar+2),row,cols,agg);
+    if(a.err) return a; if(b.err) return b;
+    return {val:(a.val===null?'':String(a.val))+(b.val===null?'':String(b.val))}; }
+  if (m = splitTop(s,'+-')) { const a=evalExpr(m[0],row,cols,agg), b=evalExpr(m[2],row,cols,agg); return a.err?a:b.err?b:{val:arith(a.val,m[1],b.val)}; }
+  if (m = splitTop(s,'*/')) { const a=evalExpr(m[0],row,cols,agg), b=evalExpr(m[2],row,cols,agg); return a.err?a:b.err?b:{val:arith(a.val,m[1],b.val)}; }
+  if (/^-/.test(s)) { const a=evalExpr(s.slice(1),row,cols,agg); return a.err?a:{val:-a.val}; }
+  if (s[0]==='(' && matchParen(s,0)===s.length-1) return evalExpr(s.slice(1,-1),row,cols,agg);
+  if (/^-?[\d.]+$/.test(s)) return {val:Number(s)};
+  if (/^'.*'$/.test(s)) return {val:s.slice(1,-1)};
+  if (/^NULL$/i.test(s)) return {val:null};
+  if (m = s.match(/^([A-Za-z_]\w*)\s*\((.*)\)$/)) {
+    const fn=m[1].toUpperCase();
+    if (AGGS.includes(fn)) return agg ? computeAgg(fn, m[2], agg)
+      : {err:'ORA-00937: '+fn+'() is a group function — it cannot be mixed with plain rows here'};
+    const args=splitArgs(m[2]).map(a=>evalExpr(a,row,cols,agg));
+    if (args.some(a=>a.err)) return {err:fn+': bad argument'};
+    const v=args.map(a=>a.val);
+    switch(fn){
+      case 'SUBSTR': case 'SUBSTRING': {
+        if (v[0]===null) return {val:null};
+        const str=String(v[0]), pos=Number(v[1]), len=v.length>2&&v[2]!==null?Number(v[2]):null;
+        if(!pos) return {val:''};
+        const from = pos>0 ? pos-1 : Math.max(str.length+pos,0);
+        if (from>=str.length) return {val:''};
+        return {val: len===null ? str.slice(from) : str.substr(from,len)};
+      }
+      case 'LENGTH': return {val:v[0]===null?null:String(v[0]).length};
+      case 'UPPER': return {val:v[0]===null?null:String(v[0]).toUpperCase()};
+      case 'LOWER': return {val:v[0]===null?null:String(v[0]).toLowerCase()};
+      case 'TRIM': return {val:v[0]===null?null:String(v[0]).trim()};
+      case 'NVL': return {val:(v[0]===null||v[0]==='')?v[1]:v[0]};
+      case 'ABS': return {val:Math.abs(Number(v[0]))};
+      case 'ROUND': { const d=v.length>1?Number(v[1]):0, f=10**d; return {val:Math.round(Number(v[0])*f)/f}; }
+      case 'MOD': return {val:Number(v[0])%Number(v[1])};
+      case 'CONCAT': return {val:(v[0]??'')+(v[1]??'')};
+      case 'DECODE': {
+        for(let i=1;i+1<v.length;i+=2){ const c=cmp(v[0],v[i],'='); if(c&&c.result) return {val:v[i+1]}; }
+        return {val: v.length%2===0 ? v[v.length-1] : null};
+      }
+      default: return {err:'unknown function '+fn};
+    }
+  }
+  const i = cols.findIndex(c=>c.toLowerCase()===s.toLowerCase());
+  if (i>=0) return {val:norm(row[i])};
+  return {err:'ORA-00904: "'+s+'": invalid identifier'};
+}
+function arith(a,op,b){ if(a===null||b===null)return null; const x=Number(a),y=Number(b);
+  const r = op==='+'?x+y : op==='-'?x-y : op==='*'?x*y : y===0?null:x/y;
+  return r===null||!isFinite(r) ? null : Math.round(r*1e10)/1e10; }
+function cmp(a,b,op){ if(a===null||b===null)return null; const n=isNum(a)&&isNum(b), x=n?Number(a):String(a), y=n?Number(b):String(b);
+  return {result: op==='='?x===y : op==='!='||op==='<>'?x!==y : op==='<'?x<y : op==='>'?x>y : op==='<='?x<=y : x>=y}; }
+function evalCond(raw,row,cols,agg){
+  const s=String(raw||'').trim(); if(!s)return {err:'empty condition'};
+  let m;
+  if(s[0]==='(' && matchParen(s,0)===s.length-1) return evalCond(s.slice(1,-1),row,cols,agg);
+  const msk=maskBetweenAnd(s);
+  const or = topKwSplit(s,'OR',msk);
+  if(or){ const r=or.map(p=>evalCond(p,row,cols,agg));
+    if(r.some(x=>x.err)) return {err:r.find(x=>x.err).err};
+    if(r.some(x=>x.result)) return {result:true, parts:r};
+    const u=r.find(x=>x.unknown); return u?{result:false, unknown:u.unknown, parts:r}:{result:false, parts:r}; }
+  const and = topKwSplit(s,'AND',msk);
+  if(and){ const r=and.map(p=>evalCond(p,row,cols,agg));
+    if(r.some(x=>x.err)) return {err:r.find(x=>x.err).err};
+    if(r.some(x=>!x.result&&!x.unknown)) return {result:false, parts:r};
+    if(r.some(x=>!x.result)) return {result:false, unknown:r.find(x=>x.unknown).unknown, parts:r};
+    return {result:true, parts:r}; }
+  if (/^NOT\s+/i.test(s)) { const r=evalCond(s.slice(4),row,cols,agg); return r.err?r:(r.unknown?r:{result:!r.result}); }
+  if (m=s.match(/^(.+?)\s+IS\s+NOT\s+NULL$/i)) { const a=evalExpr(m[1],row,cols,agg); return a.err?a:{result:a.val!==null}; }
+  if (m=s.match(/^(.+?)\s+IS\s+NULL$/i))       { const a=evalExpr(m[1],row,cols,agg); return a.err?a:{result:a.val===null}; }
+  if (m=s.match(/^(.+?)\s+NOT\s+IN\s*\((.*)\)$/i)) { const r=evalCond(m[1]+' IN ('+m[2]+')',row,cols,agg); return r.err?r:(r.unknown?r:{result:!r.result}); }
+  if (m=s.match(/^(.+?)\s+IN\s*\((.*)\)$/i))   { const a=evalExpr(m[1],row,cols,agg); if(a.err)return a;
+    const list=splitArgs(m[2]).map(x=>evalExpr(x,row,cols,agg));
+    if(list.some(x=>x.err)) return {err:list.find(x=>x.err).err};
+    let hit=false, unk=a.val===null;
+    for(const x of list){ const c=cmp(a.val,x.val,'='); if(c===null) unk=true; else if(c.result) hit=true; }
+    if(hit) return {result:true};
+    return unk ? {result:false, unknown:String(a.val)+' IN (…) → UNKNOWN (a NULL is in the list)'} : {result:false}; }
+  if (m=s.match(/^(.+?)\s+NOT\s+LIKE\s+(.+)$/i)) { const r=evalCond(m[1]+' LIKE '+m[2],row,cols,agg); return r.err?r:(r.unknown?r:{result:!r.result}); }
+  if (m=s.match(/^(.+?)\s+LIKE\s+(.+)$/i))     { const a=evalExpr(m[1],row,cols,agg); if(a.err)return a;
+    if(a.val===null) return {result:false, unknown:'NULL LIKE … → UNKNOWN'};
+    const mm=matchLike(String(a.val),unquote(m[2])); return {result:mm.ok, spans:mm.spans}; }
+  if (m=s.match(/^(.+?)\s+NOT\s+BETWEEN\s+(.+?)\s+AND\s+(.+)$/i)) { const r=evalCond(m[1]+' BETWEEN '+m[2]+' AND '+m[3],row,cols,agg); return r.err?r:(r.unknown?r:{result:!r.result}); }
+  if (m=s.match(/^(.+?)\s+BETWEEN\s+(.+?)\s+AND\s+(.+)$/i)) {
+    const a=evalExpr(m[1],row,cols,agg), lo=evalExpr(m[2],row,cols,agg), hi=evalExpr(m[3],row,cols,agg);
+    if(a.err||lo.err||hi.err) return {err:a.err||lo.err||hi.err};
+    const c1=cmp(a.val,lo.val,'>='), c2=cmp(a.val,hi.val,'<=');
+    if(c1===null||c2===null) return {result:false, unknown:String(a.val)+' BETWEEN … → UNKNOWN'};
+    return {result: !!(c1.result&&c2.result)}; }
+  if (m=s.match(/^(.+?)\s*(<=|>=|<>|!=|=|<|>)\s*(.+)$/)) {
+    const a=evalExpr(m[1],row,cols,agg), b=evalExpr(m[3],row,cols,agg);
+    if(a.err||b.err) return {err:a.err||b.err};
+    const c=cmp(a.val,b.val,m[2]);
+    if(c===null) return {result:false, unknown:String(a.val)+' '+m[2]+' '+String(b.val)+' → UNKNOWN'};
+    return c; }
+  const a=evalExpr(s,row,cols,agg); return a.err?a:{result:a.val!==null&&a.val!==0&&a.val!==''};
+}
+/* LIKE matcher returning which characters of the value were consumed by _ and literals */
+function matchLike(val, pat){
+  const toks=[]; let lit='';
+  for(const c of pat){ if(c==='%'||c==='_'){ if(lit){toks.push({k:'lit',s:lit});lit='';} toks.push({k:c}); } else lit+=c; }
+  if(lit) toks.push({k:'lit',s:lit});
+  const spans=[];
+  const rec=(ti,vi)=>{
+    if(ti===toks.length) return vi===val.length;
+    const t=toks[ti];
+    if(t.k==='lit'){ if(val.startsWith(t.s,vi)){ if(rec(ti+1,vi+t.s.length)){ spans.push({from:vi,to:vi+t.s.length,k:'lit'}); return true; } spans.pop(); } return false; }
+    if(t.k==='_'){ if(vi<val.length && rec(ti+1,vi+1)){ spans.push({from:vi,to:vi+1,k:'_'}); return true; } return false; }
+    for(let n=val.length-vi;n>=0;n--){ if(rec(ti+1,vi+n)){ if(n>0) spans.push({from:vi,to:vi+n,k:'%'}); return true; } }
+    return false;
+  };
+  const ok=rec(0,0);
+  return {ok, spans: ok? spans.sort((a,b)=>a.from-b.from):[]};
+}
+
+/* ========= text helpers shared by the engine ========= */
+/* same length as s, with quoted text and everything inside ( ) blanked out, so indices still line up */
+function mask(s){
+  let d=0,q=false,out='';
+  for(let i=0;i<s.length;i++){
+    const c=s[i];
+    if(q){ out+=' '; if(c==="'") q=false; continue; }
+    if(c==="'"){ q=true; out+=' '; continue; }
+    if(c==='('){ d++; out+='('; continue; }
+    if(c===')'){ d=Math.max(0,d-1); out+=')'; continue; }
+    out += d>0 ? ' ' : c;
+  }
+  return out;
+}
+function indexOfTop(s, needle){
+  const m=mask(s);
+  for(let i=0;i<=m.length-needle.length;i++){
+    let ok=true;
+    for(let k=0;k<needle.length;k++) if(m[i+k]!==needle[k]){ ok=false; break; }
+    if(ok) return i;
+  }
+  return -1;
+}
+function kwRegex(phrase){ return new RegExp('(?:^|[^A-Za-z0-9_])('+phrase.split(/\s+/).join('\\s+')+')(?![A-Za-z0-9_])','gi'); }
+/* split on every top-level occurrence of one keyword/phrase, or null when it is absent */
+function topKwSplit(s, phrase, msk){
+  const m=msk||mask(s), re=kwRegex(phrase), out=[]; let prev=0, x, found=false;
+  while((x=re.exec(m))!==null){ found=true; const at=x.index+x[0].length-x[1].length; out.push(s.slice(prev,at).trim()); prev=at+x[1].length; }
+  out.push(s.slice(prev).trim());
+  return found?out:null;
+}
+/* split into {kw,text} segments on any of the phrases (longest first) */
+function splitTopKw(s, phrases){
+  const m=mask(s);
+  const alt=phrases.slice().sort((a,b)=>b.length-a.length).map(p=>p.split(/\s+/).join('\\s+')).join('|');
+  const re=new RegExp('(?:^|[^A-Za-z0-9_])('+alt+')(?![A-Za-z0-9_])','gi');
+  const hits=[]; let x;
+  while((x=re.exec(m))!==null) hits.push({kw:x[1].toUpperCase().replace(/\s+/g,' '), at:x.index+x[0].length-x[1].length, len:x[1].length});
+  const segs=[]; let prev=0, kw=null;
+  hits.forEach(h=>{ segs.push({kw, text:s.slice(prev,h.at).trim()}); kw=h.kw; prev=h.at+h.len; });
+  segs.push({kw, text:s.slice(prev).trim()});
+  return segs.filter(sg=>sg.kw!==null||sg.text!=='');
+}
+/* the AND that belongs to a BETWEEN must not be used as a boolean split point */
+function maskBetweenAnd(s){
+  const m=mask(s), out=m.split('');
+  const reB=kwRegex('BETWEEN'); let x;
+  while((x=reB.exec(m))!==null){
+    const reA=kwRegex('AND'); reA.lastIndex=x.index+x[0].length;
+    const y=reA.exec(m);
+    if(y){ const at=y.index+y[0].length-y[1].length; for(let i=at;i<at+y[1].length;i++) out[i]=' '; }
+  }
+  return out.join('');
+}
+function evalCaseExpr(s,row,cols,agg){
+  const inner=s.replace(/^CASE\b/i,'').replace(/\bEND\s*$/i,'');
+  const segs=splitTopKw(inner,['WHEN','THEN','ELSE']);
+  let head=null, elseTxt=null; const list=[]; let cur=null;
+  segs.forEach(sg=>{
+    if(sg.kw===null){ if(head===null&&sg.text) head=sg.text; }
+    else if(sg.kw==='WHEN'){ cur={w:sg.text}; list.push(cur); }
+    else if(sg.kw==='THEN'){ if(cur) cur.t=sg.text; }
+    else if(sg.kw==='ELSE') elseTxt=sg.text;
+  });
+  if(!list.length) return {err:'ORA-00905: missing keyword — a CASE needs at least one WHEN … THEN'};
+  let hv=null;
+  if(head!==null){ hv=evalExpr(head,row,cols,agg); if(hv.err) return hv; }
+  for(const b of list){
+    if(b.t===undefined) return {err:'ORA-00905: missing keyword — THEN after WHEN '+b.w};
+    let ok=false;
+    if(head!==null){ const w=evalExpr(b.w,row,cols,agg); if(w.err) return w; const c=cmp(hv.val,w.val,'='); ok=!!(c&&c.result); }
+    else { const c=evalCond(b.w,row,cols,agg); if(c.err) return c; ok=c.result===true; }
+    if(ok){ const t=evalExpr(b.t,row,cols,agg); return t.err?t:{val:t.val}; }
+  }
+  if(elseTxt!==null){ const t=evalExpr(elseTxt,row,cols,agg); return t.err?t:{val:t.val}; }
+  return {val:null};
+}
+function computeAgg(fn, argRaw, agg){
+  const rows=agg.rows, cols=agg.cols, star=argRaw.trim()==='*';
+  if(star && fn!=='COUNT') return {err:'ORA-00923: '+fn+'(*) is not allowed — only COUNT takes *'};
+  if(star) return {val:rows.length};
+  const vals=[];
+  for(const r of rows){ const a=evalExpr(argRaw,r,cols); if(a.err) return a; const v=norm(a.val); if(v!==null) vals.push(v); }
+  if(fn==='COUNT') return {val:vals.length};
+  if(!vals.length) return {val:null};
+  const nums=vals.filter(isNum).map(Number);
+  if((fn==='SUM'||fn==='AVG') && nums.length!==vals.length) return {err:'ORA-01722: invalid number — '+fn+' needs a numeric column'};
+  const sum=nums.reduce((a,b)=>a+b,0);
+  const round4=n=>Math.round(n*10000)/10000;
+  if(fn==='SUM') return {val:round4(sum)};
+  if(fn==='AVG') return {val:round4(sum/nums.length)};
+  if(fn==='MIN') return {val:nums.length===vals.length?Math.min(...nums):vals.slice().sort()[0]};
+  return {val:nums.length===vals.length?Math.max(...nums):vals.slice().sort().pop()};
+}
+const AGG_RE = /\b(?:COUNT|SUM|AVG|MIN|MAX)\s*\(/i;
+const hasAgg = s => AGG_RE.test(String(s).replace(/'[^']*'/g,"''"));
+/* an aggregate written outside any parenthesis — one inside a subquery is the subquery's business */
+const hasTopAgg = s => AGG_RE.test(mask(String(s)));
+
+/* ================= rendering helpers ================= */
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const show = v => v===null||v===undefined?'NULL':typeof v==='number'?String(v):String(v);
+const cell = v => v===null||v===undefined||v==='' ? '<span class="null">NULL</span>' : '<span class="val">'+esc(v)+'</span>';
+const sqlLit = v => /^-?[\d.]+$/.test(String(v)) ? '<span class="num">'+esc(v)+'</span>' : "'"+esc(v)+"'";
+const KW = w => '<span class="kw">'+w+'</span>';
+const plainLit = v => /^-?[\d.]+$/.test(String(v)) ? String(v) : "'"+String(v)+"'";
+function colorSql(s){
+  return esc(s)
+    .replace(/\b(SELECT|FROM|WHERE|ORDER|BY|GROUP|HAVING|DISTINCT|AS|AND|OR|NOT|IN|BETWEEN|LIKE|IS|NULL|INSERT|INTO|VALUES|UPDATE|SET|DELETE|UNION|ALL|INTERSECT|MINUS|ASC|DESC|NVL|UPPER|LOWER|LENGTH|SUBSTR|ROUND|COUNT|SUM|AVG|MIN|MAX|CREATE|TABLE)\b/g,'<span class="kw">$1</span>')
+    .replace(/'([^']*)'/g,"<span class=\"str\">'$1'</span>")
+    .replace(/\b(\d+(?:\.\d+)?)\b/g,'<span class="num">$1</span>');
+}
+function resultTable(cols, rows, opts={}){
+  if(!rows.length) return '<div class="note">0 rows returned.</div>';
+  return '<div class="tscroll"><table class="res"><thead><tr>'+cols.map(c=>'<th>'+esc(c)+'</th>').join('')+(opts.tagCol?'<th></th>':'')+'</tr></thead><tbody>'+
+    rows.map(r=>'<tr'+(r._cls?' class="'+r._cls+'"':'')+'>'+r.cells.map(c=>'<td>'+c+'</td>').join('')+(opts.tagCol?'<td>'+(r.tag||'')+'</td>':'')+'</tr>').join('')+'</tbody></table></div>';
+}
+
+/* ================= topic state ================= */
+const ST = {
+  select:{table:'PRODUIT', keep:['NOM','CAT','PRIX']},
+  where:{table:'PRODUIT', cond:"PRIX > 2"},
+  pattern:{table:'PRODUIT', col:'NOM', op:'LIKE', val:'a%', lo:'2', hi:'3', set:"'apple','carrots'", cols:{LIKE:'NOM',IN:'NOM',BETWEEN:'PRIX'}},
+  nulls:{table:'PRODUIT', col:'PRIX', nvl:'0'},
+  distinct:{table:'PRODUIT', keep:['CAT']},
+  order:{table:'PRODUIT', col:'PRIX', dir:'ASC'},
+  alias:{table:'PRODUIT', col:'PRIX', alias:'PRIX_TTC', talias:'P'},
+  strfn:{table:'PRODUIT', fn:'UPPER', col:'NOM', pos:'1', len:'2', extra:"' - 1 kg'"},
+  agg:{table:'PRODUIT', fn:'COUNT', col:'PRIX'},
+  group:{table:'PRODUIT', gcol:'CAT', fn:'COUNT', acol:'PRIX'},
+  having:{table:'PRODUIT', gcol:'CAT', fn:'COUNT', acol:'PRIX', cond:'COUNT(PRIX) >= 2'},
+  subq:{table:'PRODUIT', inner:"SELECT CAT FROM PRODUIT WHERE NOM = 'apple'", mode:'IN', col:'CAT'},
+  setop:{op:'UNION'},
+  join:{type:'LEFT', lcol:'NOM', rcol:'PRODUIT'},
+  case:{mode:'simple', expr:'SUBSTR(NOM, 1, 1)', branches:[['a','group A'],['b','group B']], hasElse:true, elseVal:'other group', sel:0},
+  dml:{kind:'UPDATE', setcol:'PRIX', setval:'5', cond:"CAT = 'fruit'", vals:['4','dates','fruit','6'], delcond:"PRIX < 3"},
+  play:{text:{}, dirty:{}, flash:'', last:null, lastTopic:null}
+};
+const CASE_SIMPLE = [['a','group A'],['b','group B']];
+const CASE_SEARCHED = [['PRIX > 2','expensive'],['PRIX IS NULL','price unknown']];
+let TOPIC = 'select';
+
+const TOPICS = [
+  {g:'Read data', items:[
+    {id:'select', label:'SELECT — pick columns'},
+    {id:'distinct', label:'DISTINCT — remove doubles'},
+    {id:'order', label:'ORDER BY — sort rows'},
+    {id:'alias', label:'Aliases & clause order'}]},
+  {g:'Filter rows', items:[
+    {id:'where', label:'WHERE — comparisons'},
+    {id:'pattern', label:'IN / BETWEEN / LIKE'},
+    {id:'nulls', label:'NULL, IS NULL, NVL'}]},
+  {g:'Compute', items:[
+    {id:'strfn', label:'String functions'},
+    {id:'agg', label:'COUNT SUM AVG MIN MAX'},
+    {id:'group', label:'GROUP BY — buckets'},
+    {id:'having', label:'HAVING — filter buckets'},
+    {id:'case', label:'CASE — if/else inside SQL'}]},
+  {g:'Combine', items:[
+    {id:'subq', label:'Subqueries'},
+    {id:'setop', label:'UNION INTERSECT MINUS'},
+    {id:'join', label:'JOIN — match two tables'}]},
+  {g:'Change data', items:[
+    {id:'dml', label:'INSERT UPDATE DELETE'}]}
+];
+
+const WHAT = {
+  select:'<b>SELECT</b> chooses which columns appear in the answer. Rows are untouched — this is a vertical cut of the table.',
+  distinct:'<b>DISTINCT</b> collapses identical selected rows into one. It compares the whole row, not a single column.',
+  order:'<b>ORDER BY</b> sorts the display without touching the stored table. ASC / DESC, and you can chain columns.',
+  alias:'An <b>alias</b> renames a column or a table for readability. It is born in SELECT, so WHERE cannot see it yet.',
+  where:'<b>WHERE</b> keeps only the rows whose condition is TRUE. FALSE and UNKNOWN both drop the row.',
+  pattern:'<b>IN</b> tests membership in a list, <b>BETWEEN</b> in a range (bounds included), <b>LIKE</b> against a pattern with % and _.',
+  nulls:'<b>NULL</b> means unknown. It is not zero, not empty, and it contaminates every computation it enters. <b>NVL</b> gives it a default.',
+  strfn:'String functions transform text row by row: <b>UPPER, LOWER, LENGTH, SUBSTR</b> and the concatenation operator <b>||</b>.',
+  agg:'Aggregate functions collapse many rows into one number: <b>COUNT, SUM, AVG, MIN, MAX</b>. They skip NULL, except COUNT(*).',
+  group:'<b>GROUP BY</b> packs rows sharing a value into one bucket, and each bucket becomes a single output row.',
+  having:'<b>HAVING</b> filters buckets after the aggregate is computed, the way WHERE filters rows before grouping.',
+  subq:'A <b>subquery</b> is a query inside a query: the inner one runs first and hands its result to the outer one as a value or a list.',
+  setop:'Set operators combine two whole result sets: <b>UNION</b> merges, <b>INTERSECT</b> keeps the common part, <b>MINUS</b> subtracts.',
+  join:'A <b>JOIN</b> glues two tables together on a matching condition. Outer joins keep the rows that found no partner, padded with NULL.',
+  case:'<b>CASE</b> is an if / else-if chain inside a query: the first WHEN that is true wins, and without ELSE the answer is NULL.',
+  dml:'<b>INSERT / UPDATE / DELETE</b> change the stored data itself, unlike SELECT which only reads. Nothing is permanent before COMMIT.'
+};
+
+/* ================= topic renderers ================= */
+const R = {};
+
+R.select = () => {
+  const t=T(ST.select.table), st=ST.select;
+  const out = t.rows.map(r=>({cells: st.keep.map(k=>cell(r[t.cols.indexOf(k)]))}));
+  return {
+    controls:`<label class="k">Columns to keep</label><div>${t.cols.map(c=>'<span class="chip'+(st.keep.includes(c)?' on':'')+'" data-keep="'+c+'">'+esc(c)+'</span>').join('')}</div>`,
+    src:{key:st.table, dim:r=>st.keep.length?null:null},
+    body:`<div class="panel"><h4>Result — only the kept columns survive</h4>${resultTable(st.keep,out)}</div>`,
+    sql:`SELECT ${st.keep.length?st.keep.join(', '):'…'}\nFROM   ${t.name};`,
+    note:'SELECT is a <b>projection</b>: it never deletes rows, it only hides columns. <b>SELECT *</b> means every column — fine while exploring, but name your columns in an exam answer.'
+  };
+};
+
+R.distinct = () => {
+  const t=T(ST.distinct.table), st=ST.distinct;
+  const idx=st.keep.map(k=>t.cols.indexOf(k));
+  const seen=new Map(), groups=[];
+  t.rows.forEach((r,i)=>{ const key=idx.map(j=>String(r[j])).join('|');
+    if(!seen.has(key)){seen.set(key,groups.length);groups.push({key,rows:[i]});} else groups[seen.get(key)].rows.push(i); });
+  const out=groups.map(g=>({cells:idx.map(j=>cell(t.rows[g.rows[0]][j])), tag:g.rows.length>1?'<span class="badge b-warn">'+g.rows.length+' rows merged</span>':'<span class="badge b-mut">1</span>'}));
+  return {
+    controls:`<label class="k">Columns compared</label><div>${t.cols.map(c=>'<span class="chip'+(st.keep.includes(c)?' on':'')+'" data-dkeep="'+c+'">'+esc(c)+'</span>').join('')}</div>`,
+    body:`<div class="panel"><h4>Result — ${t.rows.length} rows in, ${groups.length} rows out</h4>${resultTable(st.keep,out,{tagCol:1})}</div>`,
+    sql:`SELECT DISTINCT ${st.keep.join(', ')}\nFROM   ${t.name};`,
+    note:'DISTINCT looks at the <b>whole selected row</b>, not one column: two rows are duplicates only if every selected column matches. It also removes duplicate NULLs — NULL counts once.'
+  };
+};
+
+R.order = () => {
+  const t=T(ST.order.table), st=ST.order;
+  const j=t.cols.indexOf(st.col);
+  const idx=t.rows.map((_,i)=>i);
+  const key=i=>{const v=norm(t.rows[i][j]); return v;};
+  idx.sort((a,b)=>{ const x=key(a), y=key(b);
+    if(x===null&&y===null)return a-b; if(x===null)return 1; if(y===null)return -1;   // Oracle: NULLs last in ASC
+    const n=isNum(x)&&isNum(y), c=n?Number(x)-Number(y):String(x).localeCompare(String(y));
+    return st.dir==='ASC'?c:-c; });
+  const out=idx.map((orig,pos)=>({cells:[cell(t.rows[orig][0]),cell(t.rows[orig][1]),cell(t.rows[orig][j]),'<span class="badge b-mut">was row '+(orig+1)+'</span>']}));
+  return {
+    controls:`<div><label class="k">Sort by</label><select data-set="order.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div><label class="k">Direction</label><select data-set="order.dir"><option value="ASC" ${st.dir==='ASC'?'selected':''}>ASC ↑</option><option value="DESC" ${st.dir==='DESC'?'selected':''}>DESC ↓</option></select></div>`,
+    body:`<div class="panel"><h4>Result — same rows, new order</h4>${resultTable([t.cols[0],t.cols[1],st.col,'origin'],out)}</div>`,
+    sql:`SELECT *\nFROM   ${t.name}\nORDER  BY ${st.col} ${st.dir};`,
+    note:'ORDER BY never changes the stored table, only the display. In Oracle <b>NULLs sort last in ASC</b> and first in DESC — carrots has no price, so it lands at the bottom. Add a second column (<span class="val">ORDER BY CAT, PRIX DESC</span>) to break ties.'
+  };
+};
+
+R.alias = () => {
+  const t=T(ST.alias.table), st=ST.alias;
+  const steps=['FROM','WHERE','GROUP BY','HAVING','SELECT','ORDER BY'];
+  return {
+    controls:`<div><label class="k">Column</label><select data-set="alias.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div><label class="k">Column alias</label><input value="${esc(st.alias)}" data-set="alias.alias"></div>
+      <div><label class="k">Table alias</label><input value="${esc(st.talias)}" data-set="alias.talias" style="width:70px"></div>`,
+    body:`<div class="panel"><h4>Oracle evaluates clauses in this order</h4>
+      <div class="flow">${steps.map((s,i)=>(i?'<span class="arrow">→</span>':'')+'<span class="fstep'+(s==='SELECT'?' on':'')+'">'+s+(s==='SELECT'?' ← alias is born here':'')+'</span>').join('')}</div>
+      <p class="note">So an alias <b>cannot be used in WHERE</b> (it does not exist yet), but it works in ORDER BY. Try it below.</p>
+      <pre>${colorSql("SELECT "+st.col+" AS "+st.alias+"\nFROM   "+t.name+" "+st.talias+"\nWHERE  "+st.alias+" IS NOT NULL;")}   <span class="err">-- ORA-00904: invalid identifier</span>
+
+${colorSql("SELECT "+st.col+" AS "+st.alias+"\nFROM   "+t.name+" "+st.talias+"\nORDER  BY "+st.alias+";")}          <span class="str">-- works</span></pre>
+      <p class="note">Column alias: <b>AS optional</b> (<span class="val">${st.col} ${st.alias}</span> is the same). Table alias: <b>AS forbidden</b> — <span class="val">FROM ${t.name} AS ${st.talias}</span> gives ORA-00933. Aliases with spaces need double quotes: <span class="val">AS "Mon alias"</span>.</p></div>`,
+    sql:`SELECT ${st.col} AS ${st.alias}\nFROM   ${t.name} ${st.talias};`,
+    note:''
+  };
+};
+
+R.where = () => {
+  const t=T(ST.where.table), st=ST.where;
+  const res=t.rows.map(r=>evalCond(st.cond,r,t.cols));
+  const out=[]; t.rows.forEach((r,i)=>{ if(res[i].result) out.push({cells:t.cols.map(c=>cell(r[t.cols.indexOf(c)])), tag:'<span class="badge b-ok">kept</span>'}); });
+  return {
+    controls:`<div style="flex:1;min-width:260px"><label class="k">Condition</label><input value="${esc(st.cond)}" data-set="where.cond"></div>
+      <div><label class="k">Quick examples</label><div>${["PRIX > 2","CAT = 'fruit'","PRIX > 2 AND CAT = 'fruit'","NOT CAT = 'fruit'","PRIX IS NULL"].map(c=>'<span class="chip" data-cond="'+esc(c)+'">'+esc(c)+'</span>').join('')}</div></div>`,
+    src:{key:st.table, rowCls:(r,i)=>res[i].result?'keep':'gone', rowTag:(r,i)=>res[i].unknown?'<span class="badge b-warn">'+esc(res[i].unknown)+'</span>':(res[i].result?'<span class="badge b-ok">TRUE</span>':'<span class="badge b-no">FALSE</span>'), tagCol:1},
+    body:`<div class="panel"><h4>Result — ${out.length} of ${t.rows.length} rows pass the test</h4>${resultTable(t.cols,out,{tagCol:1})}</div>`,
+    sql:`SELECT *\nFROM   ${t.name}\nWHERE  ${st.cond};`,
+    note:'WHERE keeps a row only when the condition is <b>TRUE</b>. FALSE and UNKNOWN (anything compared to NULL) both drop the row — that is why <span class="val">PRIX = NULL</span> returns nothing and you must write <span class="val">PRIX IS NULL</span>.'
+  };
+};
+
+R.pattern = () => {
+  const t=T(ST.pattern.table), st=ST.pattern;
+  const j=t.cols.indexOf(st.col);
+  let rows=[], extra='';
+  if(st.op==='LIKE'){
+    rows=t.rows.map(r=>{ const m=matchLike(String(r[j]??''),unquote(st.val));
+      return {ok:m.ok, vis:charsLike(String(r[j]??''),m)}; });
+    extra='<p class="note"><b>%</b> = any string (even empty), <b>_</b> = exactly one character. Oracle LIKE is case-sensitive: <span class="val">LIKE \'A%\'</span> misses "apple" because the stored value starts with a lowercase a. Dashed boxes show what each wildcard ate.</p>';
+  } else if(st.op==='IN'){
+    const set=splitArgs(st.set).map(unquote);
+    rows=t.rows.map(r=>({ok:set.some(v=>{const c=cmp(r[j],v,'=');return c&&c.result;}), vis:'<span class="val">'+esc(r[j]??'NULL')+'</span> ∈ {'+set.map(v=>esc(v)).join(', ')+'}'}));
+    extra='<p class="note">IN is a shortcut for <span class="val">col = a OR col = b OR …</span>. <b>NOT IN</b> with a NULL inside the list returns no rows at all — a classic exam trap.</p>';
+  } else {
+    rows=t.rows.map(r=>{ const c1=cmp(r[j],st.lo,'>='), c2=cmp(r[j],st.hi,'<=');
+      return {ok:!!(c1&&c2&&c1.result&&c2.result), vis:'<span class="val">'+esc(st.lo)+'</span> ≤ <span class="val">'+esc(r[j]??'NULL')+'</span> ≤ <span class="val">'+esc(st.hi)+'</span>'}; });
+    extra='<p class="note">BETWEEN includes both bounds: <span class="val">BETWEEN 2 AND 3</span> keeps the prices 2 and 3. It only makes sense on ordered values (numbers, dates) — and a NULL price matches nothing.</p>';
+  }
+  const out=[]; t.rows.forEach((r,i)=>{ if(rows[i].ok) out.push({cells:t.cols.map(c=>cell(r[t.cols.indexOf(c)]))}); });
+  const cond = st.op==='LIKE' ? st.col+" LIKE '"+unquote(st.val)+"'" : st.op==='IN' ? st.col+' IN ('+st.set+')' : st.col+' BETWEEN '+st.lo+' AND '+st.hi;
+  return {
+    controls:`<div><label class="k">Operator</label><select data-set="pattern.op"><option ${st.op==='LIKE'?'selected':''}>LIKE</option><option ${st.op==='IN'?'selected':''}>IN</option><option ${st.op==='BETWEEN'?'selected':''}>BETWEEN</option></select></div>
+      <div><label class="k">Column</label><select data-set="pattern.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      ${st.op==='LIKE'?'<div><label class="k">Pattern</label><input value="'+esc(st.val)+'" data-set="pattern.val" style="width:120px"></div>'
+        :st.op==='IN'?'<div><label class="k">Value list</label><input value="'+esc(st.set)+'" data-set="pattern.set" style="width:180px"></div>'
+        :'<div><label class="k">From</label><input value="'+esc(st.lo)+'" data-set="pattern.lo" style="width:80px"></div><div><label class="k">To</label><input value="'+esc(st.hi)+'" data-set="pattern.hi" style="width:80px"></div>'}`,
+    body:`<div class="panel"><h4>Row-by-row test</h4><div class="tscroll"><table class="res"><tbody>${t.rows.map((r,i)=>'<tr class="'+(rows[i].ok?'keep':'gone')+'"><td>'+rows[i].vis+'</td><td>'+(rows[i].ok?'<span class="badge b-ok">match</span>':'<span class="badge b-no">no</span>')+'</td></tr>').join('')}</tbody></table></div>${extra}</div>
+      <div class="panel"><h4>Result</h4>${resultTable(t.cols,out)}</div>`,
+    sql:`SELECT *\nFROM   ${t.name}\nWHERE  ${cond};`,
+    note:''
+  };
+};
+function charsLike(val,m){
+  if(!val) return '<span class="null">NULL</span> — LIKE never matches NULL';
+  const on=i=>m.spans.find(s=>i>=s.from&&i<s.to);
+  return '<span class="chars">'+[...val].map((c,i)=>{const s=on(i);
+    return '<span class="ch'+(s?(s.k==='lit'?' on':' wild'):'')+'">'+esc(c)+(s&&s.k!=='lit'?'<i>'+s.k+'</i>':'')+'</span>';}).join('')+'</span>';
+}
+
+R.nulls = () => {
+  const t=T(ST.nulls.table), st=ST.nulls;
+  const j=t.cols.indexOf(st.col), lj=LC(t)===j?0:LC(t);
+  const withNvl=t.rows.map(r=>({cells:[cell(r[lj]),cell(r[j]),norm(r[j])===null?'<span class="badge b-warn">yes</span>':'<span class="badge b-mut">no</span>','<span class="val">'+esc(evalExpr('NVL('+st.col+', '+st.nvl+')',r,t.cols).val)+'</span>']}));
+  return {
+    controls:`<div><label class="k">Column</label><select data-set="nulls.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div><label class="k">NVL replacement</label><input value="${esc(st.nvl)}" data-set="nulls.nvl" style="width:90px"></div>`,
+    body:`<div class="panel"><h4>Three different questions about the same column</h4>
+      <div class="tscroll"><table class="res"><thead><tr><th>${t.cols[lj]}</th><th>${st.col}</th><th>IS NULL ?</th><th>NVL(${st.col}, ${st.nvl})</th></tr></thead><tbody>${withNvl.map(r=>'<tr>'+r.cells.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')}</tbody></table></div>
+      <p class="note">NULL means <b>unknown</b>, not zero and not empty string. <span class="val">PRIX + 1</span> for carrots gives NULL — the unknown contaminates everything it touches. <span class="val">NVL</span> swaps in a default so arithmetic survives. And <span class="val">COUNT(PRIX)</span> skips NULLs while <span class="val">COUNT(*)</span> counts every row.</p></div>`,
+    sql:`SELECT ${t.cols[lj]}, ${st.col}, NVL(${st.col}, ${st.nvl}) AS ${st.col}_CORRIGE\nFROM   ${t.name}\nWHERE  ${st.col} IS NULL;`,
+    note:''
+  };
+};
+
+R.strfn = () => {
+  const t=T(ST.strfn.table), st=ST.strfn;
+  const expr = st.fn==='SUBSTR' ? 'SUBSTR('+st.col+', '+st.pos+', '+st.len+')'
+    : st.fn==='CONCAT' ? st.col+" || "+st.extra
+    : st.fn+'('+st.col+')';
+  const out=t.rows.map(r=>{ const a=evalExpr(expr,r,t.cols);
+    return {cells:[cell(r[0]),cell(r[t.cols.indexOf(st.col)]),a.err?'<span class="err">'+esc(a.err)+'</span>':cell(a.val),vis(r,expr)]}; });
+  function vis(r,expr){
+    const v=String(r[t.cols.indexOf(st.col)]??'');
+    if(st.fn==='SUBSTR'){ const from=Number(st.pos)>0?Number(st.pos)-1:Math.max(v.length+Number(st.pos),0); const to=Math.min(from+Number(st.len),v.length);
+      return '<span class="chars">'+[...v].map((c,i)=>'<span class="ch'+(i>=from&&i<to?' on':'')+'">'+esc(c)+'<i>'+(i+1)+'</i></span>').join('')+'</span>'; }
+    if(st.fn==='LENGTH') return v.length+' characters';
+    if(st.fn==='CONCAT') return '<span class="val">'+esc(v)+'</span> + <span class="val">'+esc(unquote(st.extra))+'</span>';
+    return '';
+  }
+  return {
+    controls:`<div><label class="k">Function</label><select data-set="strfn.fn">${['UPPER','LOWER','LENGTH','SUBSTR','CONCAT'].map(f=>'<option'+(f===st.fn?' selected':'')+'>'+f+'</option>').join('')}</select></div>
+      <div><label class="k">Column</label><select data-set="strfn.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      ${st.fn==='SUBSTR'?'<div><label class="k">Start (from 1)</label><input value="'+esc(st.pos)+'" data-set="strfn.pos" style="width:70px"></div><div><label class="k">Length</label><input value="'+esc(st.len)+'" data-set="strfn.len" style="width:70px"></div>':''}
+      ${st.fn==='CONCAT'?'<div><label class="k">Append</label><input value="'+esc(st.extra)+'" data-set="strfn.extra" style="width:110px"></div>':''}`,
+    body:`<div class="panel"><h4>Row-by-row transformation</h4><div class="tscroll"><table class="res"><thead><tr><th>${t.cols[0]}</th><th>${st.col}</th><th>${esc(expr)}</th><th>how</th></tr></thead><tbody>${out.map(r=>'<tr>'+r.cells.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')}</tbody></table></div>
+      <p class="note"><b>SUBSTR counts from 1</b>, not 0 — the number under each box is its Oracle position. <span class="val">||</span> is the concatenation operator (CONCAT works too but takes only 2 arguments). String comparison in Oracle is case-sensitive, which is why <span class="val">WHERE UPPER(NOM) = \'APPLE\'</span> is the safe way to search.</p></div>`,
+    sql:`SELECT ${t.cols[0]}, ${expr} AS RESULTAT\nFROM   ${t.name};`,
+    note:''
+  };
+};
+
+R.agg = () => {
+  const t=T(ST.agg.table), st=ST.agg;
+  const j=t.cols.indexOf(st.col);
+  const vals=t.rows.map(r=>norm(r[j])).filter(v=>v!==null);
+  const nums=vals.filter(isNum).map(Number);
+  const res = st.fn==='COUNT' ? (st.col==='*'?t.rows.length:vals.length)
+    : st.fn==='SUM' ? nums.reduce((a,b)=>a+b,0)
+    : st.fn==='AVG' ? (nums.length?nums.reduce((a,b)=>a+b,0)/nums.length:null)
+    : st.fn==='MIN' ? (nums.length?Math.min(...nums):(vals.length?vals.slice().sort()[0]:null))
+    : st.fn==='MAX' ? (nums.length?Math.max(...nums):(vals.length?vals.slice().sort().pop():null)) : null;
+  const skipped=t.rows.length-vals.length;
+  const chips=st.col==='*'
+    ? t.rows.map((r,i)=>'<span class="ch on" title="row '+(i+1)+'">'+esc(r[LC(t)]??('row '+(i+1)))+'</span>').join('')
+    : t.rows.map((r,i)=>'<span class="ch'+(norm(r[j])===null?'':' on')+'" title="row '+(i+1)+'">'+(norm(r[j])===null?'<span class="null">NULL</span>':esc(r[j]))+'</span>').join('');
+  const avgLine = st.fn==='AVG'&&nums.length ? '<p class="note">AVG = SUM ÷ <b>count of non-NULL values</b> = '+nums.reduce((a,b)=>a+b,0)+' ÷ '+nums.length+' = <b>'+res+'</b>. Divide by the row count and you get the wrong answer.</p>' : '';
+  return {
+    controls:`<div><label class="k">Function</label><select data-set="agg.fn">${['COUNT','SUM','AVG','MIN','MAX'].map(f=>'<option'+(f===st.fn?' selected':'')+'>'+f+'</option>').join('')}</select></div>
+      <div><label class="k">Column</label><select data-set="agg.col"><option value="*" ${st.col==='*'?'selected':''}>*</option>${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>`,
+    body:`<div class="panel"><h4>${st.col==='*'?'COUNT(*) counts every row, values ignored':'The values the function sees'}</h4><div class="chars">${chips}</div>
+      <p class="big" style="margin:14px 0 4px">${st.fn}(${st.col}) = <span style="color:var(--ok)">${res===null?'NULL':res}</span></p>
+      ${skipped&&st.fn!=='COUNT'||st.fn==='COUNT'&&st.col!=='*'&&skipped?'<p class="note">'+skipped+' NULL value(s) ignored — aggregate functions skip NULL, except COUNT(*) which counts rows.</p>':''}
+      ${avgLine}</div>`,
+    sql:`SELECT ${st.fn}(${st.col}) AS RESULTAT\nFROM   ${t.name};`,
+    note:'An aggregate collapses many rows into <b>one</b> value. That is why you cannot mix it with plain columns in SELECT without GROUP BY — Oracle refuses with ORA-00937.'
+  };
+};
+
+R.group = () => {
+  const t=T(ST.group.table), st=ST.group;
+  const gj=t.cols.indexOf(st.gcol), aj=t.cols.indexOf(st.acol);
+  const groups=new Map();
+  t.rows.forEach((r,i)=>{ const k=norm(r[gj]); const key=k===null?'NULL':String(k);
+    if(!groups.has(key)) groups.set(key,{key,k,rows:[]}); groups.get(key).rows.push(i); });
+  const buckets=[...groups.values()].map(g=>{
+    const nums=g.rows.map(i=>norm(t.rows[i][aj])).filter(v=>v!==null&&isNum(v)).map(Number);
+    const v = st.fn==='COUNT' ? (st.acol==='*'?g.rows.length:g.rows.map(i=>norm(t.rows[i][aj])).filter(x=>x!==null).length)
+      : st.fn==='SUM'?nums.reduce((a,b)=>a+b,0) : st.fn==='AVG'?(nums.length?nums.reduce((a,b)=>a+b,0)/nums.length:null)
+      : st.fn==='MIN'?(nums.length?Math.min(...nums):null) : (nums.length?Math.max(...nums):null);
+    return {...g, val:v};
+  });
+  const out=buckets.map(b=>({cells:[cell(b.k),'<span class="badge b-mut">'+b.rows.length+' rows</span>','<span class="val" style="color:var(--ok)">'+(b.val===null?'NULL':b.val)+'</span>']}));
+  return {
+    controls:`<div><label class="k">Group by</label><select data-set="group.gcol">${t.cols.map(c=>'<option'+(c===st.gcol?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div><label class="k">Aggregate</label><select data-set="group.fn">${['COUNT','SUM','AVG','MIN','MAX'].map(f=>'<option'+(f===st.fn?' selected':'')+'>'+f+'</option>').join('')}</select></div>
+      <div><label class="k">Of column</label><select data-set="group.acol"><option value="*">*</option>${t.cols.map(c=>'<option'+(c===st.acol?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>`,
+    src:{key:st.table},
+    body:`<div class="panel"><h4>Rows fall into one bucket per distinct ${st.gcol}</h4><div class="buckets">${buckets.map(b=>'<div class="bucket"><h5>'+cell(b.k)+'</h5>'+b.rows.map(i=>'<div class="val" style="font-size:13px">'+esc(t.rows[i][LC(t)]??t.rows[i][0])+' · '+esc(t.rows[i][aj]??'NULL')+'</div>').join('')+'</div>').join('')}</div></div>
+      <div class="panel"><h4>One output row per bucket</h4>${resultTable([st.gcol,'rows in bucket',st.fn+'('+st.acol+')'],out)}</div>`,
+    sql:`SELECT ${st.gcol}, ${st.fn}(${st.acol})\nFROM   ${t.name}\nGROUP  BY ${st.gcol};`,
+    note:'GROUP BY runs <b>after</b> WHERE: filter rows first, then bucket what remains. NULL values form their own bucket. Every column in SELECT must be either grouped or aggregated.'
+  };
+};
+
+R.having = () => {
+  const t=T(ST.having.table), st=ST.having;
+  const gj=t.cols.indexOf(st.gcol), aj=t.cols.indexOf(st.acol);
+  const groups=new Map();
+  t.rows.forEach((r,i)=>{ const k=norm(r[gj]); const key=k===null?'NULL':String(k); if(!groups.has(key))groups.set(key,{key,k,rows:[]}); groups.get(key).rows.push(i); });
+  const buckets=[...groups.values()].map(g=>{
+    const nums=g.rows.map(i=>norm(t.rows[i][aj])).filter(v=>v!==null&&isNum(v)).map(Number);
+    const aggVal = st.fn==='COUNT'?(st.acol==='*'?g.rows.length:g.rows.map(i=>norm(t.rows[i][aj])).filter(x=>x!==null).length)
+      : st.fn==='SUM'?nums.reduce((a,b)=>a+b,0):st.fn==='AVG'?(nums.length?nums.reduce((a,b)=>a+b,0)/nums.length:null)
+      : st.fn==='MIN'?(nums.length?Math.min(...nums):null):(nums.length?Math.max(...nums):null);
+    const fakeCols=['__AGG', st.gcol];
+    const fakeRow=[aggVal, g.k];
+    const aggCall=new RegExp(st.fn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*\\(\\s*'+st.acol.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\s*\\)','i');
+    const c=evalCond(st.cond.replace(aggCall,'__AGG'), fakeRow, fakeCols);
+    return {...g, val:aggVal, keep:c.result===true, err:c.err};
+  });
+  const out=buckets.filter(b=>b.keep).map(b=>({cells:[cell(b.k),'<span class="val" style="color:var(--ok)">'+(b.val===null?'NULL':b.val)+'</span>']}));
+  return {
+    controls:`<div><label class="k">Group by</label><select data-set="having.gcol">${t.cols.map(c=>'<option'+(c===st.gcol?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div><label class="k">Aggregate</label><select data-set="having.fn">${['COUNT','SUM','AVG','MIN','MAX'].map(f=>'<option'+(f===st.fn?' selected':'')+'>'+f+'</option>').join('')}</select></div>
+      <div><label class="k">Of</label><select data-set="having.acol"><option value="*">*</option>${t.cols.map(c=>'<option'+(c===st.acol?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>
+      <div style="flex:1;min-width:200px"><label class="k">HAVING condition</label><input value="${esc(st.cond)}" data-set="having.cond"></div>`,
+    body:`<div class="panel"><h4>Buckets, then the HAVING test on each aggregate</h4><div class="buckets">${buckets.map(b=>'<div class="bucket'+(b.keep?'':' dead')+'"><h5>'+cell(b.k)+' — '+st.fn+' = '+(b.val===null?'NULL':b.val)+'</h5><span class="badge '+(b.keep?'b-ok">kept':'b-no">eliminated')+'</span></div>').join('')}</div>
+      <p class="note">WHERE filters <b>rows before</b> grouping; HAVING filters <b>buckets after</b> the aggregate is computed. You cannot put an aggregate in WHERE — Oracle answers ORA-00934.</p></div>
+      <div class="panel"><h4>Result</h4>${resultTable([st.gcol,st.fn+'('+st.acol+')'],out)}</div>`,
+    sql:`SELECT ${st.gcol}, ${st.fn}(${st.acol})\nFROM   ${t.name}\nGROUP  BY ${st.gcol}\nHAVING ${st.cond};`,
+    note:''
+  };
+};
+
+R.subq = () => {
+  const t=T(ST.subq.table), st=ST.subq;
+  const inner=runSelect(st.inner);
+  const vals=inner.rows.map(r=>r[0]);
+  const j=t.cols.indexOf(st.col);
+  const out=[];
+  t.rows.forEach(r=>{
+    const v=norm(r[j]);
+    const ok = st.mode==='IN' ? vals.some(x=>{const c=cmp(v,x,'=');return c&&c.result;})
+      : vals.length===1 && (()=>{const c=cmp(v,vals[0],'=');return c&&c.result;})();
+    if(ok) out.push({cells:t.cols.map(c=>cell(r[t.cols.indexOf(c)]))});
+  });
+  return {
+    controls:`<div style="flex:1;min-width:280px"><label class="k">Inner query (one column)</label><input value="${esc(st.inner)}" data-set="subq.inner"></div>
+      <div><label class="k">Outer test</label><select data-set="subq.mode"><option ${st.mode==='IN'?'selected':''}>IN</option><option ${st.mode==='='?'selected':''}>=</option></select></div>
+      <div><label class="k">On column</label><select data-set="subq.col">${t.cols.map(c=>'<option'+(c===st.col?' selected':'')+'>'+esc(c)+'</option>').join('')}</select></div>`,
+    body:`<div class="panel"><h4>Step 1 — run the inner query alone</h4>${inner.err?'<p class="err">'+esc(inner.err)+'</p>':resultTable(inner.cols,inner.rows.map(r=>({cells:r.map(cell)})))}
+      <p class="note">Its output is a <b>value list</b>: { ${vals.map(v=>esc(v)).join(', ')||'empty'} }. ${st.mode==='='?'With <b>=</b> the inner query must return exactly one value, otherwise ORA-01427.':'With <b>IN</b> any number of values is fine — including zero, which then returns no outer rows.'}</p></div>
+      <div class="panel"><h4>Step 2 — the outer query tests each row against that list</h4>${resultTable(t.cols,out)}</div>`,
+    sql:`SELECT *\nFROM   ${t.name}\nWHERE  ${st.col} ${st.mode} (${st.inner});`,
+    note:'Oracle runs the inner query <b>first</b> (unless it is correlated). A subquery can also sit in SELECT or FROM — in FROM it behaves like a temporary table.'
+  };
+};
+R.setop = () => {
+  const A=T('A'), B=T('B'), st=ST.setop;
+  const a=A.rows.map(r=>r[0]), b=B.rows.map(r=>r[0]);
+  const same=(x,y)=>String(x)===String(y);
+  let rows=[], note='';
+  if(st.op==='UNION'){ rows=[...new Set([...a,...b])]; note='UNION removes duplicates and sorts nothing guaranteed — think of it as the merge of two sets.'; }
+  if(st.op==='UNION ALL'){ rows=[...a,...b]; note='UNION ALL keeps every row including duplicates — faster, and the honest count.'; }
+  if(st.op==='INTERSECT'){ rows=[...new Set(a.filter(x=>b.some(y=>same(x,y))))]; note='INTERSECT = only what appears in both.'; }
+  if(st.op==='MINUS'){ rows=[...new Set(a.filter(x=>!b.some(y=>same(x,y))))]; note='MINUS = in the first query but not in the second. Order matters: B MINUS A is a different answer.'; }
+  const inA=x=>a.some(y=>same(x,y)), inB=x=>b.some(y=>same(x,y));
+  const universe=[...new Set([...a,...b])];
+  return {
+    controls:`<div><label class="k">Operator</label><select data-set="setop.op">${['UNION','UNION ALL','INTERSECT','MINUS'].map(o=>'<option'+(o===st.op?' selected':'')+'>'+o+'</option>').join('')}</select></div>`,
+    body:`<div class="panel"><h4>Both inputs must have the same column shape</h4>
+      <div class="side">
+        <div class="sidecol"><label class="k">${A.name}</label><div class="chars">${a.map(v=>'<span class="ch on">'+esc(v)+'</span>').join('')}</div></div>
+        <div class="sidecol"><label class="k">${B.name}</label><div class="chars">${b.map(v=>'<span class="ch on">'+esc(v)+'</span>').join('')}</div></div>
+      </div>
+      <div style="margin-top:16px"><label class="k">Where each product lives</label><div class="chars">${universe.map(v=>'<span class="ch'+((inA(v)&&inB(v))?' on':(inA(v)?'':' wild'))+'" title="'+(inA(v)?'in A ':'')+(inB(v)?'in B':'')+'">'+esc(v)+'<i>'+(inA(v)&&inB(v)?'A∩B':inA(v)?'A only':'B only')+'</i></span>').join('')}</div></div>
+      <p class="note">${note}</p></div>
+      <div class="panel"><h4>Result of ${A.name} ${st.op} ${B.name}</h4>${resultTable(['NOM'],rows.map(v=>({cells:[cell(v)]})))}</div>`,
+    sql:`SELECT NOM FROM ${A.name}\n${st.op}\nSELECT NOM FROM ${B.name};`,
+    note:''
+  };
+};
+
+R.dml = () => {
+  const t=T('PRODUIT'), st=ST.dml;
+  const before=t.rows.map(r=>r.slice());
+  let after=before.map(r=>r.slice()), changed=[], sql='';
+  if(st.kind==='INSERT'){
+    after.push(st.vals.slice(0,t.cols.length));
+    changed=[after.length-1];
+    sql=`INSERT INTO ${t.name} (${t.cols.join(', ')})\nVALUES (${st.vals.map(v=>v===null||v===''?'NULL':plainLit(v)).join(', ')});`;
+  } else if(st.kind==='UPDATE'){
+    const j=t.cols.indexOf(st.setcol);
+    after.forEach((r,i)=>{ if(evalCond(st.cond,r,t.cols).result){ r[j]=st.setval; changed.push(i); } });
+    sql=`UPDATE ${t.name}\nSET    ${st.setcol} = ${plainLit(st.setval)}\nWHERE  ${st.cond};`;
+  } else {
+    after=after.filter((r,i)=>{ const keep=!evalCond(st.delcond,r,t.cols).result; if(!keep) changed.push(i); return keep; });
+    sql=`DELETE FROM ${t.name}\nWHERE  ${st.delcond};`;
+  }
+  const tbl=(rows,mark)=>'<div class="tscroll"><table class="res"><thead><tr>'+t.cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'</tr></thead><tbody>'+
+    rows.map((r,i)=>'<tr class="'+(mark&&changed.includes(i)?'keep':'')+'">'+r.map(c=>'<td>'+cell(c)+'</td>').join('')+'</tr>').join('')+'</tbody></table></div>';
+  return {
+    controls:`<div><label class="k">Statement</label><select data-set="dml.kind"><option ${st.kind==='INSERT'?'selected':''}>INSERT</option><option ${st.kind==='UPDATE'?'selected':''}>UPDATE</option><option ${st.kind==='DELETE'?'selected':''}>DELETE</option></select></div>
+      ${st.kind==='UPDATE'?'<div><label class="k">Set column</label><select data-set="dml.setcol">'+t.cols.map(c=>'<option'+(c===st.setcol?' selected':'')+'>'+c+'</option>').join('')+'</select></div><div><label class="k">To</label><input value="'+esc(st.setval)+'" data-set="dml.setval" style="width:90px"></div><div style="flex:1;min-width:170px"><label class="k">Where</label><input value="'+esc(st.cond)+'" data-set="dml.cond"></div>':''}
+      ${st.kind==='DELETE'?'<div style="flex:1;min-width:170px"><label class="k">Where</label><input value="'+esc(st.delcond)+'" data-set="dml.delcond"></div>':''}
+      ${st.kind==='INSERT'?'<div><label class="k">Values ('+t.cols.join(', ')+')</label><div class="controls">'+st.vals.map((v,i)=>'<input value="'+esc(v??'')+'" data-set="dml.vals.'+i+'" style="width:80px">').join('')+'</div></div><button class="act" id="applyDml">apply to the table</button>':''}`,
+    body:`<div class="panel"><div class="side">
+      <div class="sidecol"><h4>Before</h4>${tbl(before,false)}</div>
+      <div class="sidecol"><h4>After — changed rows highlighted</h4>${tbl(after,true)}</div></div>
+      <p class="note">${st.kind==='DELETE'?'Rows matching the condition disappear. <b>DELETE without WHERE empties the table</b> — the most expensive typo in SQL.':''}
+      ${st.kind==='UPDATE'?'UPDATE without WHERE rewrites every row.':''}
+      ${st.kind==='INSERT'?'Preview only: press “apply to the table” to really add the row to the shared PRODUIT table used by every topic.':''}
+      In real Oracle nothing is permanent until <b>COMMIT</b>; <b>ROLLBACK</b> undoes it.</p></div>`,
+    sql, note:''
+  };
+};
+
+R.join = () => {
+  const L=T('PRODUIT'), Rt=T('FOURNISSEUR'), st=ST.join;
+  const li=L.cols.indexOf(st.lcol), ri=Rt.cols.indexOf(st.rcol);
+  const eq=(a,b)=>{ const x=norm(a), y=norm(b); if(x===null||y===null) return false; return isNum(x)&&isNum(y)?Number(x)===Number(y):String(x)===String(y); };
+  const pairs=[]; const rUsed=new Set();
+  L.rows.forEach((lr,a)=>{ let hit=false;
+    Rt.rows.forEach((rr,b)=>{ if(eq(lr[li],rr[ri])){ hit=true; rUsed.add(b); pairs.push({a,b,kind:'match'}); } });
+    if(!hit && (st.type==='LEFT'||st.type==='FULL')) pairs.push({a,b:null,kind:'L'});
+  });
+  Rt.rows.forEach((rr,b)=>{ if(!rUsed.has(b) && (st.type==='RIGHT'||st.type==='FULL')) pairs.push({a:null,b,kind:'R'}); });
+  if(st.type==='CROSS') { pairs.length=0; L.rows.forEach((_,a)=>Rt.rows.forEach((__,b)=>pairs.push({a,b,kind:'match'}))); }
+  const cols=[...L.cols.map(c=>'L.'+c), ...Rt.cols.map(c=>'R.'+c), 'origin'];
+  const out=pairs.map(p=>({cells:[
+    ...L.cols.map((_,i)=>p.a===null?cell(null):cell(L.rows[p.a][i])),
+    ...Rt.cols.map((_,i)=>p.b===null?cell(null):cell(Rt.rows[p.b][i])),
+    p.kind==='match'?'<span class="badge b-ok">matched</span>':p.kind==='L'?'<span class="badge b-warn">only in left</span>':'<span class="badge b-warn">only in right</span>']}));
+  const pairsVis=pairs.filter(p=>p.kind==='match').slice(0,12).map(p=>'<span class="chip on">'+esc(L.rows[p.a][LC(L)]??L.rows[p.a][0])+' ↔ '+esc(Rt.rows[p.b][LC(Rt)]??Rt.rows[p.b][0])+'</span>').join('');
+  return {
+    controls:`<div><label class="k">Join type</label><select data-set="join.type">${['INNER','LEFT','RIGHT','FULL','CROSS'].map(t=>'<option'+(t===st.type?' selected':'')+'>'+t+'</option>').join('')}</select></div>
+      <div><label class="k">Left key (${L.name})</label><select data-set="join.lcol">${L.cols.map(c=>'<option'+(c===st.lcol?' selected':'')+'>'+c+'</option>').join('')}</select></div>
+      <div><label class="k">Right key (${Rt.name})</label><select data-set="join.rcol">${Rt.cols.map(c=>'<option'+(c===st.rcol?' selected':'')+'>'+c+'</option>').join('')}</select></div>`,
+    body:`<div class="panel"><h4>Who found a partner</h4><div>${pairsVis||'<span class="note">no pair matched on this key</span>'}</div>
+      <p class="note">INNER keeps only the pairs. LEFT adds every left row that found nobody (right side becomes NULL); RIGHT the mirror image; FULL both leftovers; CROSS ignores the key and multiplies: ${L.rows.length} × ${Rt.rows.length} = ${L.rows.length*Rt.rows.length} rows. In this sample <b>carrots has no supplier</b> and <b>date supplier sells nothing in the product table</b> — exactly the two rows the outer joins rescue with NULL.</p></div>
+      <div class="panel"><h4>Joined result — ${out.length} rows</h4>${resultTable(cols,out)}</div>`,
+    sql: st.type==='CROSS'
+      ? `SELECT *\nFROM   ${L.name} L CROSS JOIN ${Rt.name} R;`
+      : `SELECT *\nFROM   ${L.name} L ${st.type==='INNER'?'INNER':st.type+' OUTER'} JOIN ${Rt.name} R\n       ON L.${st.lcol} = R.${st.rcol};`,
+    note:''
+  };
+};
+
+R.case = () => {
+  const t=T('PRODUIT'), st=ST.case;
+  st.sel=Math.min(st.sel, t.rows.length-1);
+  const row=t.rows[st.sel]||[];
+  let exprVal=null, ladder=[], hit=-1;
+  if(st.mode==='simple'){ const e=evalExpr(st.expr,row,t.cols); exprVal=e.err?null:e.val; }
+  st.branches.forEach((b,i)=>{
+    if(hit>=0){ ladder.push({b,state:'skip'}); return; }
+    let ok=false, tested='';
+    if(st.mode==='simple'){ const c=cmp(exprVal,unquote(b[0]),'='); ok=!!(c&&c.result); tested=show(exprVal)+' = '+show(unquote(b[0])); }
+    else { const c=evalCond(b[0],row,t.cols); ok=c.result===true; tested=b[0]; }
+    if(ok) hit=i;
+    ladder.push({b,state:ok?'hit':'miss',tested});
+  });
+  const value = hit>=0 ? unquote(st.branches[hit][1]) : (st.hasElse?unquote(st.elseVal):null);
+  const allRows=t.rows.map(r=>{
+    let h=-1;
+    if(st.mode==='simple'){ const e=evalExpr(st.expr,r,t.cols); const v=e.err?null:e.val;
+      st.branches.forEach((b,i)=>{ if(h<0){ const c=cmp(v,unquote(b[0]),'='); if(c&&c.result) h=i; } }); }
+    else st.branches.forEach((b,i)=>{ if(h<0 && evalCond(b[0],r,t.cols).result===true) h=i; });
+    return h>=0?unquote(st.branches[h][1]):(st.hasElse?unquote(st.elseVal):null);
+  });
+  const asAlias = st.mode==='simple' ? 'FAMILLE' : 'TRANCHE';
+  return {
+    controls:`<div><label class="k">Form</label><select data-set="case.mode"><option value="simple" ${st.mode==='simple'?'selected':''}>CASE expr WHEN value</option><option value="searched" ${st.mode==='searched'?'selected':''}>CASE WHEN condition</option></select></div>
+      ${st.mode==='simple'?'<div style="flex:1;min-width:200px"><label class="k">Expression</label><input value="'+esc(st.expr)+'" data-set="case.expr"></div>':''}
+      <div><label class="k">ELSE</label><select data-set="case.hasElse"><option value="0" ${!st.hasElse?'selected':''}>none</option><option value="1" ${st.hasElse?'selected':''}>yes</option></select></div>
+      ${st.hasElse?'<div><label class="k">ELSE value</label><input value="'+esc(st.elseVal)+'" data-set="case.elseVal" style="width:120px"></div>':''}`,
+    src:{key:'PRODUIT', pick:'case', rowCls:(r,i)=>i===st.sel?'keep':''},
+    body:`<div class="panel"><h4>Trace of row ${st.sel+1} — ${esc(row[LC(t)]??'')}</h4>
+      ${st.mode==='simple'?'<p class="note" style="margin:0 0 10px">'+esc(st.expr)+' evaluates to <b class="val">'+show(exprVal)+'</b></p>':''}
+      <div class="buckets" style="display:block">${ladder.map((l,i)=>'<div class="bucket'+(l.state==='skip'?' dead':'')+'" style="margin-bottom:6px;min-width:100%"><h5>WHEN '+esc(l.b[0])+' THEN '+esc(l.b[1])+'</h5><span class="badge '+(l.state==='hit'?'b-ok">TRUE — returns now':l.state==='miss'?'b-no">FALSE':'b-mut">never tested')+'</span></div>').join('')}
+      ${!st.hasElse&&hit<0?'<div class="bucket" style="margin-bottom:6px"><h5>ELSE — absent</h5><span class="badge b-warn">result is NULL</span></div>':''}</div>
+      <p class="big" style="margin:12px 0 0">→ <span style="color:var(--ok)">${value===null?'NULL':esc(value)}</span></p></div>
+      <div class="panel"><h4>The whole table with the CASE column</h4>${resultTable([t.cols[0],t.cols[1],'RESULT'],t.rows.map((r,i)=>({cells:[cell(r[0]),cell(r[1]),value2cell(allRows[i])]})))}</div>`,
+    sql: st.mode==='simple'
+      ? `SELECT ${t.cols[0]},\n       CASE ${st.expr}\n${st.branches.map(b=>'            WHEN '+sqlLit(unquote(b[0]))+' THEN '+sqlLit(unquote(b[1]))).join('\n')}${st.hasElse?'\n            ELSE '+sqlLit(unquote(st.elseVal)):''}\n       END AS ${asAlias}\nFROM   ${t.name};`
+      : `SELECT ${t.cols[0]},\n       CASE\n${st.branches.map(b=>'            WHEN '+b[0]+' THEN '+sqlLit(unquote(b[1]))).join('\n')}${st.hasElse?'\n            ELSE '+sqlLit(unquote(st.elseVal)):''}\n       END AS ${asAlias}\nFROM   ${t.name};`,
+    note:'CASE reads top to bottom and <b>stops at the first TRUE WHEN</b> — the branches below are never tested. No ELSE means the answer is NULL. In searched form a NULL price makes <span class="val">PRIX &gt; 2</span> UNKNOWN, not TRUE, so carrots falls through to the next WHEN. Oracle-only twin: <span class="val">DECODE(SUBSTR(NOM,1,1), \'a\', \'group A\', \'other group\')</span>.'
+  };
+};
+const value2cell = v => v===null?'<span class="null">NULL</span>':'<span class="val" style="color:var(--ok)">'+esc(v)+'</span>';
+
+/* ================= free-text SQL engine ================= */
+const sqlVal = v => v===null||v===undefined ? 'NULL' : isNum(v) ? String(v) : "'"+String(v).replace(/'/g,"''")+"'";
+const snapDB = () => Object.keys(DB).map(k=>({k, cols:DB[k].cols.slice(), rows:DB[k].rows.map(r=>r.slice())}));
+function restoreDB(snap){ snap.forEach(e=>{ const t=DB[e.k]; if(!t) return; t.cols.length=0; e.cols.forEach(c=>t.cols.push(c)); t.rows.length=0; e.rows.forEach(r=>t.rows.push(r.slice())); }); }
+let TXSNAP = snapDB();
+const stripSql = raw => String(raw).replace(/\/\*[\s\S]*?\*\//g,' ').split('\n').map(l=>l.replace(/--.*$/,'')).join('\n').trim();
+const findTable = n => Object.values(DB).find(t=>t.name.toLowerCase()===String(n).toLowerCase());
+
+function splitAlias(t){
+  const m=mask(t), re=kwRegex('AS'); let last=null, x;
+  while((x=re.exec(m))!==null) last=x.index+x[0].length-x[1].length;
+  if(last!==null){
+    const expr=t.slice(0,last).trim(); let alias=t.slice(last+2).trim();
+    const q=alias.match(/^"(.*)"$/); if(q) alias=q[1];
+    if(!expr) return {err:'ORA-00936: missing expression before AS'};
+    if(!alias) return {err:'ORA-00936: missing alias after AS'};
+    return {expr, alias};
+  }
+  let mm=t.match(/^(CASE[\s\S]*\bEND)\s+(\w+)\s*$/i); if(mm) return {expr:mm[1], alias:mm[2]};
+  mm=t.match(/^(\w+(?:\.\w+)?)\s+(\w+)\s*$/);
+  if(mm && !/^(AS|FROM|WHERE|ORDER|GROUP|BY|HAVING|DESC|ASC)$/i.test(mm[2])) return {expr:mm[1], alias:mm[2]};
+  return {expr:t.trim(), alias:null};
+}
+function parseFrom(text){
+  const srcs=[];
+  const add=(chunk, joinType, on)=>{
+    const c=chunk.trim(); if(!c) return {err:'ORA-00903: missing table name'};
+    const toks=c.split(/\s+/);
+    if(toks.length>1 && /^AS$/i.test(toks[1])) return {err:'ORA-00933: SQL command not properly ended — a table alias never takes AS. Write "FROM '+toks[0]+' '+toks[2]+'"'};
+    if(toks.length>2) return {err:'ORA-00933: SQL command not properly ended — unexpected "'+toks.slice(1).join(' ')+'" after '+toks[0]};
+    const t=findTable(toks[0]);
+    if(!t) return {err:"ORA-00942: table or view does not exist — '"+toks[0]+"'. This page has "+Object.values(DB).map(x=>x.name).join(', ')};
+    srcs.push({t, alias:(toks[1]||t.name), joinType, on});
+    return null;
+  };
+  if(mask(text).includes(',')){
+    for(const p of splitArgs(text)){ const e=add(p,'CROSS',null); if(e) return e; }
+    return {sources:srcs};
+  }
+  const segs=splitTopKw(text,['CROSS JOIN','LEFT OUTER JOIN','RIGHT OUTER JOIN','FULL OUTER JOIN','INNER JOIN','LEFT JOIN','RIGHT JOIN','FULL JOIN','JOIN']);
+  for(const sg of segs){
+    if(sg.kw===null){ const e=add(sg.text,null,null); if(e) return e; continue; }
+    const jt=sg.kw.replace(' OUTER','').replace(' JOIN','');
+    const onSegs=splitTopKw(sg.text,['ON']);
+    const on=onSegs.find(p=>p.kw==='ON');
+    const e=add(onSegs[0]?onSegs[0].text:'', jt==='JOIN'?'INNER':(jt||'INNER'), on?on.text:null);
+    if(e) return e;
+  }
+  if(!srcs.length) return {err:'ORA-00903: missing table name'};
+  return {sources:srcs};
+}
+const colCounts = sources => { const c={}; sources.forEach(s=>s.t.cols.forEach(x=>{const k=x.toUpperCase(); c[k]=(c[k]||0)+1;})); return c; };
+function flatView(combo, sources){
+  const counts=colCounts(sources), cols=[], row=[], pad=[];
+  sources.forEach((s,i)=>{ const r=combo[i]; pad.push(!r);
+    s.t.cols.forEach((c,ci)=>{ const v=r?norm(r[ci]):null;
+      cols.push(s.alias+'.'+c); row.push(v);
+      if(counts[c.toUpperCase()]===1){ cols.push(c); row.push(v); } }); });
+  return {cols,row,pad};
+}
+const valOf = (fv,name) => { const i=fv.cols.findIndex(c=>c.toLowerCase()===String(name).toLowerCase()); return i<0?null:fv.row[i]; };
+function starCols(sources, onlyAlias){
+  const counts=colCounts(sources), out=[];
+  sources.forEach(s=>{ if(onlyAlias && s.alias.toLowerCase()!==onlyAlias.toLowerCase()) return;
+    s.t.cols.forEach(c=>out.push({name: counts[c.toUpperCase()]>1 ? s.alias+'.'+c : c, ref:s.alias+'.'+c})); });
+  return out;
+}
+function buildCombos(sources){
+  let cur=sources[0].t.rows.map(r=>[r]);
+  for(let i=1;i<sources.length;i++){
+    const s=sources[i], right=s.t.rows, jt=s.joinType||'INNER', part=sources.slice(0,i+1);
+    const next=[], used=new Set();
+    for(const combo of cur){
+      let hit=false;
+      for(let b=0;b<right.length;b++){
+        const trial=combo.concat([right[b]]);
+        if(jt==='CROSS'||!s.on){ hit=true; used.add(b); next.push(trial); continue; }
+        const fv=flatView(trial,part), c=evalCond(s.on,fv.row,fv.cols);
+        if(c.err) return c;
+        if(c.result){ hit=true; used.add(b); next.push(trial); }
+      }
+      if(!hit && (jt==='LEFT'||jt==='FULL')) next.push(combo.concat([null]));
+    }
+    if(jt==='RIGHT'||jt==='FULL'){ const pad=new Array(i).fill(null);
+      right.forEach((rr,b)=>{ if(!used.has(b)) next.push(pad.concat([rr])); }); }
+    cur=next;
+  }
+  return {combos:cur};
+}
+function findSubStart(s){
+  let q=false;
+  for(let i=0;i<s.length;i++){ const c=s[i];
+    if(c==="'"){q=!q;continue;} if(q)continue;
+    if(c==='(' && /^\s*SELECT\b/i.test(s.slice(i+1))) return i; }
+  return -1;
+}
+function matchParen(s, open){
+  let d=0,q=false;
+  for(let i=open;i<s.length;i++){ const c=s[i];
+    if(c==="'"){q=!q;continue;} if(q)continue;
+    if(c==='(')d++; else if(c===')'){d--; if(d===0) return i;} }
+  return -1;
+}
+function resolveSubs(cond){
+  let text=cond;
+  for(let guard=0;guard<10;guard++){
+    const at=findSubStart(text);
+    if(at<0) return {text};
+    const end=matchParen(text,at);
+    if(end<0) return {err:"ORA-00907: missing right parenthesis in '"+cond+"'"};
+    const res=runSetOp(text.slice(at+1,end));
+    if(res.err) return res;
+    if(res.cols.length>1) return {err:'ORA-00913: too many values — a subquery here must return exactly one column'};
+    const before=text.slice(0,at).trimEnd(), vals=res.rows.map(r=>r[0]);
+    let repl;
+    if(/\bIN$/i.test(before)) repl = vals.length ? '('+vals.map(sqlVal).join(', ')+')' : "('__EMPTY__')";
+    else { if(vals.length>1) return {err:'ORA-01427: single-row subquery returns more than one row ('+vals.length+')'};
+      repl = vals.length ? sqlVal(vals[0]) : 'NULL'; }
+    text = text.slice(0,at) + repl + text.slice(end+1);
+  }
+  return {err:'ORA-00913: too many nested subqueries'};
+}
+function aliasTrap(msg, items){
+  const m=/ORA-00904: "([^"]+)"/.exec(String(msg||''));
+  if(m){ const hit=(items||[]).find(it=>it.name && it.expr && it.name!==it.expr && it.name.toLowerCase()===m[1].toLowerCase());
+    if(hit) return 'ORA-00904: "'+m[1]+'": invalid identifier — that alias is born in SELECT, so WHERE cannot see it yet. Use the expression instead: '+hit.expr; }
+  return msg;
+}
+function runSelect(sql){
+  const s=String(sql).trim();
+  const sm=s.match(/^SELECT\s+([\s\S]*)$/i);
+  if(!sm) return {err:"expected a query starting with SELECT — got '"+s.split(/\s+/)[0]+"'"};
+  let body=sm[1], distinct=false, dm=body.match(/^DISTINCT\s+([\s\S]*)$/i);
+  if(dm){ distinct=true; body=dm[1]; } else { dm=body.match(/^ALL\s+([\s\S]*)$/i); if(dm) body=dm[1]; }
+  const segs=splitTopKw(body,['FROM','WHERE','GROUP BY','HAVING','ORDER BY']);
+  let itemsTxt=null, fromTxt=null, where=null, groupTxt=null, having=null, orderTxt=null;
+  segs.forEach(sg=>{
+    if(sg.kw===null){ if(itemsTxt===null) itemsTxt=sg.text; }
+    else if(sg.kw==='FROM'&&!fromTxt) fromTxt=sg.text;
+    else if(sg.kw==='WHERE'&&!where) where=sg.text;
+    else if(sg.kw==='GROUP BY'&&!groupTxt) groupTxt=sg.text;
+    else if(sg.kw==='HAVING'&&!having) having=sg.text;
+    else if(sg.kw==='ORDER BY'&&!orderTxt) orderTxt=sg.text;
+  });
+  if(!itemsTxt) return {err:'ORA-00936: missing expression — nothing between SELECT and FROM'};
+  if(fromTxt===null) return {err:'ORA-00923: FROM keyword not found where expected'};
+  if(!fromTxt.trim()) return {err:'ORA-00903: missing table name — after FROM comes a table: '+Object.values(DB).map(x=>x.name).join(', ')};
+  const fp=parseFrom(fromTxt); if(fp.err) return fp;
+  const sources=fp.sources, stars=starCols(sources,null);
+  const rowVals=fv=>stars.map(c=>valOf(fv,c.ref));
+  const items=[];
+  for(const part of splitArgs(itemsTxt)){
+    const t=part.trim(); if(!t) continue;
+    if(t==='*'){ stars.forEach(c=>items.push({ref:c.ref, name:c.name})); continue; }
+    const stm=t.match(/^(\w+)\.\*$/);
+    if(stm){ const sc=starCols(sources,stm[1]); if(!sc.length) return {err:'ORA-00904: "'+stm[1]+'.*": invalid identifier — unknown table alias'}; sc.forEach(c=>items.push({ref:c.ref,name:c.name})); continue; }
+    const al=splitAlias(t); if(al.err) return al;
+    items.push({expr:al.expr, name:al.alias||al.expr});
+  }
+  if(!items.length) return {err:'ORA-00936: missing expression'};
+  if(where){
+    if(hasTopAgg(where)) return {err:'ORA-00934: group function is not allowed here — an aggregate is filtered with HAVING, not WHERE'};
+    const rs=resolveSubs(where); if(rs.err) return rs; where=rs.text;
+  }
+  const bc=buildCombos(sources); if(bc.err) return bc;
+  let views=bc.combos.map(c=>flatView(c,sources)), trace=null;
+  if(where){
+    const res=views.map(fv=>evalCond(where,fv.row,fv.cols));
+    const bad=res.find(r=>r.err); if(bad) return {err:aliasTrap(bad.err,items)};
+    trace={cols:stars.map(c=>c.name), rows:views.map((fv,i)=>({vals:rowVals(fv), v:res[i].result?'TRUE':(res[i].unknown?'UNKNOWN':'FALSE')}))};
+    views=views.filter((fv,i)=>res[i].result===true);
+  }
+  const groupKeys=groupTxt?splitArgs(groupTxt).map(x=>x.trim()).filter(Boolean):[];
+  const grouped=groupKeys.length>0||having!==null||items.some(it=>it.expr&&hasTopAgg(it.expr));
+  let contexts=[], buckets=null;
+  if(grouped){
+    const map=new Map();
+    for(const fv of views){
+      let key, kv=[];
+      if(groupKeys.length){
+        for(const gk of groupKeys){ const a=evalExpr(gk,fv.row,fv.cols); if(a.err) return {err:aliasTrap(a.err,items)}; kv.push(a.val===undefined?null:a.val); }
+        key=kv.map(v=>v===null?'NULL':String(v)).join('\u0001');
+      } else key='\u0000';
+      if(!map.has(key)) map.set(key,{keys:kv,views:[]});
+      map.get(key).views.push(fv);
+    }
+    if(!map.size) map.set('\u0000',{keys:groupKeys.map(()=>null),views:[]});
+    const empty=flatView(sources.map(()=>null),sources);
+    buckets=[];
+    for(const b of map.values()){
+      const agg={rows:b.views.map(v=>v.row), cols:(b.views[0]||empty).cols};
+      let keep=true, having_=having!==null;
+      if(having){
+        if(!b.views.length) keep=false;
+        else { const c=evalCond(having,b.views[0].row,b.views[0].cols,agg); if(c.err) return {err:c.err}; keep=c.result===true; }
+      }
+      buckets.push({keys:b.keys, count:b.views.length, rows:b.views.slice(0,6).map(rowVals), keep, having:having_});
+      contexts.push({fv:b.views[0]||empty, agg, bucket:buckets[buckets.length-1], all:b.views});
+    }
+    contexts=contexts.filter(c=>c.bucket.keep);
+  } else contexts=views.map(fv=>({fv, agg:null, bucket:null, all:[fv]}));
+  const outCols=items.map(it=>it.name), rows=[];
+  for(const ctx of contexts){
+    const fv=ctx.fv, vals=[];
+    for(const it of items){
+      if(it.ref!==undefined){ vals.push(valOf(fv,it.ref)); continue; }
+      if(ctx.agg && !hasAgg(it.expr)){
+        const first=evalExpr(it.expr,fv.row,fv.cols);
+        if(first.err) return {err:aliasTrap(first.err,items)};
+        if(!ctx.all.every(v=>{const x=evalExpr(it.expr,v.row,v.cols); return String(x.val)===String(first.val);}))
+          return {err:'ORA-00979: not a GROUP BY expression — "'+it.expr+'" must appear in GROUP BY or inside an aggregate'};
+      }
+      const a=evalExpr(it.expr,fv.row,fv.cols,ctx.agg);
+      if(a.err) return {err:aliasTrap(a.err,items)};
+      vals.push(a.val===undefined?null:a.val);
+    }
+    rows.push({vals, ctx});
+  }
+  let out=rows;
+  if(distinct){ const seen=new Set(); out=rows.filter(r=>{ const k=r.vals.map(v=>v===null?'NULL':String(v)).join('\u0001'); if(seen.has(k))return false; seen.add(k); return true; }); }
+  if(orderTxt){
+    const keys=splitArgs(orderTxt).map(k=>{ const t=k.trim(), m=t.match(/^([\s\S]*?)\s+(ASC|DESC)$/i);
+      return {expr:(m?m[1]:t).trim(), dir:m?m[2].toUpperCase():'ASC'}; });
+    for(const key of keys){
+      let idx=outCols.findIndex(c=>c.toLowerCase()===key.expr.toLowerCase());
+      if(idx<0 && /^\d+$/.test(key.expr) && +key.expr>=1 && +key.expr<=outCols.length) idx=+key.expr-1;
+      if(idx>=0) key.get=r=>r.vals[idx];
+      else key.get=r=>{ const a=evalExpr(key.expr,r.ctx.fv.row,r.ctx.fv.cols,r.ctx.agg); if(a.err){key.err=a.err;return null;} return a.val; };
+    }
+    for(const r of out) for(const key of keys) key.get(r);
+    const bad=keys.find(k=>k.err); if(bad) return {err:aliasTrap(bad.err,items)};
+    out=out.slice().sort((A,B)=>{
+      for(const key of keys){
+        const x=key.get(A), y=key.get(B), xn=x===null||x===undefined, yn=y===null||y===undefined;
+        let c;
+        if(xn&&yn) c=0; else if(xn) c=1; else if(yn) c=-1;
+        else c=(isNum(x)&&isNum(y))?Number(x)-Number(y):String(x).localeCompare(String(y));
+        if(key.dir==='DESC') c=-c;
+        if(c) return c;
+      }
+      return 0;
+    });
+  }
+  const origin = sources.length>1 ? out.map(r=>{ const p=r.ctx.fv.pad; return p.every(x=>!x)?'matched':(p[0]?'only in right':'only in left'); }) : null;
+  return {cols:outCols, rows:out.map(r=>r.vals),
+    meta:{distinct, grouped, trace:(trace&&!grouped&&sources.length===1)?trace:null, buckets:groupKeys.length?buckets:null, origin}};
+}
+function runSetOp(sql){
+  const segs=splitTopKw(String(sql).trim(),['UNION ALL','UNION','INTERSECT','MINUS']);
+  let left=runSelect(segs[0].text);
+  if(left.err) return left;
+  const key=r=>r.map(v=>v===null?'NULL':String(v)).join('\u0001');
+  let rows=left.rows, cols=left.cols, meta=left.meta; const ops=[];
+  for(let i=1;i<segs.length;i++){
+    const right=runSelect(segs[i].text);
+    if(right.err) return right;
+    if(right.cols.length!==cols.length) return {err:'ORA-01789: query block has incorrect number of result columns ('+cols.length+' vs '+right.cols.length+')'};
+    const op=segs[i].kw, L=rows, R=right.rows; ops.push(op);
+    if(op==='UNION ALL') rows=L.concat(R);
+    else if(op==='UNION'){ const seen=new Set(); rows=L.concat(R).filter(r=>{const k=key(r); if(seen.has(k))return false; seen.add(k); return true;}); }
+    else if(op==='INTERSECT'){ const set=new Set(R.map(key)), seen=new Set(); rows=L.filter(r=>{const k=key(r); if(!set.has(k)||seen.has(k))return false; seen.add(k); return true;}); }
+    else { const set=new Set(R.map(key)), seen=new Set(); rows=L.filter(r=>{const k=key(r); if(set.has(k)||seen.has(k))return false; seen.add(k); return true;}); }
+    meta=null;
+  }
+  return {cols, rows, meta, ops};
+}
+function planInsert(sql){
+  const m=String(sql).match(/^INSERT\s+INTO\s+(\w+)\s*(?:\(([^)]*)\))?\s*VALUES\s*\(([\s\S]*)\)\s*$/i);
+  if(!m) return {err:'ORA-00928: missing SELECT keyword — expected INSERT INTO table (col, …) VALUES (value, …)'};
+  const t=findTable(m[1]); if(!t) return {err:"ORA-00942: table or view does not exist — '"+m[1]+"'"};
+  const cols=m[2]?splitArgs(m[2]).map(s=>s.trim()):t.cols.slice();
+  const vals=splitArgs(m[3]);
+  if(vals.length!==cols.length) return {err: vals.length>cols.length?'ORA-00913: too many values':'ORA-00947: not enough values'};
+  const idx=cols.map(c=>t.cols.findIndex(x=>x.toLowerCase()===c.toLowerCase()));
+  if(idx.some(i=>i<0)) return {err:'ORA-00904: "'+cols[idx.indexOf(-1)]+'": invalid identifier — '+t.name+' has '+t.cols.join(', ')};
+  const row=t.cols.map(()=>null);
+  for(let i=0;i<vals.length;i++){
+    const a=evalExpr(vals[i],[],[]);
+    if(a.err) return {err:"this simulator takes literals in VALUES — numbers, 'text' and NULL (got '"+vals[i].trim()+"')"};
+    row[idx[i]] = a.val===null||a.val===undefined ? null : String(a.val);
+  }
+  const before=t.rows.map(r=>r.slice()), after=before.concat([row]);
+  return {dml:'INSERT', table:t.name, cols:t.cols.slice(), before, after, changedBefore:[], changedAfter:[after.length-1], affected:1,
+    apply:()=>{ t.rows.push(row.slice()); }};
+}
+function planUpdate(sql){
+  const head=String(sql).match(/^UPDATE\s+(\w+)\s+SET\s+([\s\S]*)$/i);
+  if(!head) return {err:'ORA-00971: missing SET keyword — expected UPDATE table SET col = value [WHERE …]'};
+  const t=findTable(head[1]); if(!t) return {err:"ORA-00942: table or view does not exist — '"+head[1]+"'"};
+  const segs=splitTopKw(head[2],['WHERE']);
+  const where=segs.find(s=>s.kw==='WHERE');
+  const assigns=[];
+  for(const a of splitArgs(segs[0].text)){
+    const i=indexOfTop(a,'=');
+    if(i<0) return {err:"ORA-00933: expected 'column = value' in SET, got '"+a.trim()+"'"};
+    const col=a.slice(0,i).trim(), ci=t.cols.findIndex(x=>x.toLowerCase()===col.toLowerCase());
+    if(ci<0) return {err:'ORA-00904: "'+col+'": invalid identifier — '+t.name+' has '+t.cols.join(', ')};
+    assigns.push({ci, val:a.slice(i+1).trim()});
+  }
+  const before=t.rows.map(r=>r.slice()), after=t.rows.map(r=>r.slice()), changed=[];
+  for(let i=0;i<after.length;i++){
+    if(where){ const c=evalCond(where.text,after[i],t.cols); if(c.err) return c; if(!c.result) continue; }
+    for(const a of assigns){ const v=evalExpr(a.val,after[i],t.cols); if(v.err) return v; after[i][a.ci]= v.val===null||v.val===undefined?null:String(v.val); }
+    changed.push(i);
+  }
+  return {dml:'UPDATE', table:t.name, cols:t.cols.slice(), before, after, changedBefore:changed.slice(), changedAfter:changed.slice(), affected:changed.length,
+    apply:()=>{ t.rows.length=0; after.forEach(r=>t.rows.push(r.slice())); }};
+}
+function planDelete(sql){
+  const head=String(sql).match(/^DELETE\s+FROM\s+(\w+)(?:\s+WHERE\s+([\s\S]*))?$/i);
+  if(!head) return {err:'ORA-00903: missing table name — expected DELETE FROM table [WHERE …]'};
+  const t=findTable(head[1]); if(!t) return {err:"ORA-00942: table or view does not exist — '"+head[1]+"'"};
+  const before=t.rows.map(r=>r.slice()), after=[], changed=[];
+  for(let i=0;i<before.length;i++){
+    let drop=true;
+    if(head[2]){ const c=evalCond(head[2],before[i],t.cols); if(c.err) return c; drop=c.result===true; }
+    if(drop) changed.push(i); else after.push(before[i].slice());
+  }
+  return {dml:'DELETE', table:t.name, cols:t.cols.slice(), before, after, changedBefore:changed.slice(), changedAfter:[], affected:changed.length,
+    apply:()=>{ t.rows.length=0; after.forEach(r=>t.rows.push(r.slice())); }};
+}
+function runSql(raw, opts){
+  const apply=!!(opts&&opts.apply);
+  const sql=stripSql(raw).replace(/;+\s*$/,'');
+  if(!sql) return {err:'nothing to run — try SELECT * FROM PRODUIT;'};
+  if(mask(sql).includes(';')) return {err:'one statement at a time — remove the ; in the middle'};
+  const up=sql.toUpperCase();
+  try{
+    if(/^COMMIT\b/.test(up)) { if(apply){ TXSNAP=snapDB(); return {msg:'COMMIT — every change since the last COMMIT is permanent now.'}; }
+      return {msg:'COMMIT would make every change since the last COMMIT permanent.'}; }
+    if(/^ROLLBACK\b/.test(up)) { if(apply){ restoreDB(TXSNAP); return {msg:'ROLLBACK — the tables are back to their state at the last COMMIT (page load if you never committed).'}; }
+      return {msg:'ROLLBACK would undo every change since the last COMMIT.'}; }
+    if(/^INSERT\b/.test(up)){ const p=planInsert(sql); if(p.err||!apply) return p.apply&&!apply?Object.assign({},p,{preview:true}):p; p.apply(); return Object.assign({},p,{applied:true}); }
+    if(/^UPDATE\b/.test(up)){ const p=planUpdate(sql); if(p.err||!apply) return p.apply&&!apply?Object.assign({},p,{preview:true}):p; p.apply(); return Object.assign({},p,{applied:true}); }
+    if(/^DELETE\b/.test(up)){ const p=planDelete(sql); if(p.err||!apply) return p.apply&&!apply?Object.assign({},p,{preview:true}):p; p.apply(); return Object.assign({},p,{applied:true}); }
+    if(/^SELECT\b/.test(up)||/^\(/.test(up)) return runSetOp(sql);
+    if(/^CREATE\b/.test(up)) return {err:'CREATE TABLE is not simulated here — but every sample table on this page is editable: use “+ row” and “+ column”.'};
+    return {err:"this page runs SELECT, INSERT, UPDATE, DELETE, COMMIT and ROLLBACK — '"+sql.split(/\s+/)[0]+"' is not one of them"};
+  }catch(e){ return {err:'could not read that query — '+(e&&e.message?e.message:e)}; }
+}
+
+/* ================= page assembly ================= */
+function srcPanel(cfg){
+  if(!cfg) return '';
+  const t=T(cfg.key);
+  const rowsHtml = t.rows.map((r,i)=>{
+    const cls = cfg.rowCls ? cfg.rowCls(r,i) : '';
+    const tag = cfg.rowTag ? cfg.rowTag(r,i) : '';
+    return '<tr class="'+cls+'"'+(cfg.pick?' data-pick="'+cfg.pick+'" data-row="'+i+'"':'')+'>'+r.map((v,ci)=>'<td><input value="'+esc(v??'')+'" data-rk="'+cfg.key+'" data-r="'+i+'" data-c="'+ci+'"></td>').join('')+
+      (cfg.tagCol?'<td>'+tag+'</td>':'')+'<td><button class="x" data-del="'+cfg.key+'-'+i+'">&times;</button></td></tr>';
+  }).join('');
+  const head=t.cols.map((c,i)=>'<th><input class="plain" value="'+esc(c)+'" data-hk="'+cfg.key+'" data-h="'+i+'"></th>').join('')+(cfg.tagCol?'<th></th>':'')+'<th></th>';
+  return '<div class="panel"><h4>Table '+t.name+' — click any cell to edit</h4><div class="tscroll"><table><thead><tr>'+head+'</tr></thead><tbody>'+rowsHtml+'</tbody></table></div>'+
+    '<div class="rowbtns"><button class="act" data-add="'+cfg.key+'">+ row</button><button class="act" data-addcol="'+cfg.key+'">+ column</button></div></div>';
+}
+
+/* ================= SQL playground ================= */
+const PLAY_EXAMPLES = {
+  select:[{l:'two columns only', q:"SELECT NOM, PRIX\nFROM   PRODUIT;"},
+          {l:'everything', q:"SELECT *\nFROM   FOURNISSEUR;"},
+          {l:'cut + filter', q:"SELECT ID, NOM, CAT\nFROM   PRODUIT\nWHERE  CAT = 'fruit';"}],
+  distinct:[{l:'without DISTINCT', q:"SELECT CAT\nFROM   PRODUIT;"},
+            {l:'with DISTINCT', q:"SELECT DISTINCT CAT\nFROM   PRODUIT;"},
+            {l:'two columns', q:"SELECT DISTINCT CAT, PRIX\nFROM   PRODUIT;"}],
+  order:[{l:'cheapest last (NULL!)', q:"SELECT NOM, PRIX\nFROM   PRODUIT\nORDER BY PRIX;"},
+         {l:'DESC puts NULL first', q:"SELECT NOM, PRIX\nFROM   PRODUIT\nORDER BY PRIX DESC;"},
+         {l:'two keys', q:"SELECT CAT, NOM\nFROM   PRODUIT\nORDER BY CAT, NOM DESC;"}],
+  alias:[{l:'column aliases', q:"SELECT NOM AS produit, PRIX * 1.2 AS prix_ttc\nFROM   PRODUIT;"},
+         {l:'table alias', q:"SELECT P.NOM, P.PRIX\nFROM   PRODUIT P;"},
+         {l:'the ORA-00904 trap', q:"SELECT PRIX AS P\nFROM   PRODUIT\nWHERE  P > 2;"}],
+  where:[{l:'one test', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX > 2;"},
+         {l:'AND + OR', q:"SELECT *\nFROM   PRODUIT\nWHERE  CAT = 'fruit' AND PRIX >= 3\n    OR CAT = 'vegetable';"},
+         {l:'the NULL trap', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX = NULL;"}],
+  pattern:[{l:'LIKE a%', q:"SELECT *\nFROM   PRODUIT\nWHERE  NOM LIKE 'a%';"},
+           {l:'LIKE 2 chars', q:"SELECT *\nFROM   PRODUIT\nWHERE  NOM LIKE '_a%';"},
+           {l:'BETWEEN', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX BETWEEN 2 AND 3;"},
+           {l:'IN a list', q:"SELECT *\nFROM   PRODUIT\nWHERE  NOM IN ('apple','dates');"}],
+  nulls:[{l:'NVL replaces NULL', q:"SELECT NOM, PRIX, NVL(PRIX, 0) AS prix\nFROM   PRODUIT;"},
+         {l:'IS NULL', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX IS NULL;"},
+         {l:'aggregates skip NULL', q:"SELECT COUNT(*) AS lignes, COUNT(PRIX) AS prix, SUM(PRIX) AS total\nFROM   PRODUIT;"}],
+  strfn:[{l:'UPPER + LENGTH', q:"SELECT UPPER(NOM) AS maj, LENGTH(NOM) AS taille\nFROM   PRODUIT;"},
+         {l:'SUBSTR', q:"SELECT NOM, SUBSTR(NOM, 1, 2) AS debut\nFROM   PRODUIT;"},
+         {l:'concat with ||', q:"SELECT NOM || ' - 1 kg' AS ligne\nFROM   PRODUIT;"}],
+  agg:[{l:'all five', q:"SELECT COUNT(*) AS n, COUNT(PRIX) AS np, SUM(PRIX) AS somme,\n       AVG(PRIX) AS moy, MIN(PRIX) AS mini, MAX(PRIX) AS maxi\nFROM   PRODUIT;"},
+       {l:'COUNT(*) vs COUNT(col)', q:"SELECT COUNT(*), COUNT(PRIX)\nFROM   PRODUIT;"},
+       {l:'on the other table', q:"SELECT COUNT(*) AS fournisseurs\nFROM   FOURNISSEUR;"}],
+  group:[{l:'count per bucket', q:"SELECT CAT, COUNT(*) AS n\nFROM   PRODUIT\nGROUP BY CAT;"},
+         {l:'average per bucket', q:"SELECT CAT, AVG(PRIX) AS moy\nFROM   PRODUIT\nGROUP BY CAT;"},
+         {l:'the ORA-00979 trap', q:"SELECT NOM\nFROM   PRODUIT\nGROUP BY CAT;"}],
+  having:[{l:'buckets with 2+ prices', q:"SELECT CAT, COUNT(PRIX) AS n\nFROM   PRODUIT\nGROUP BY CAT\nHAVING COUNT(PRIX) >= 2;"},
+          {l:'sum filter', q:"SELECT CAT, SUM(PRIX) AS total\nFROM   PRODUIT\nGROUP BY CAT\nHAVING SUM(PRIX) > 4;"},
+          {l:'WHERE then HAVING', q:"SELECT CAT, COUNT(*) AS n\nFROM   PRODUIT\nWHERE  PRIX IS NOT NULL\nGROUP BY CAT\nHAVING COUNT(*) >= 1;"}],
+  case:[{l:'simple CASE', q:"SELECT NOM,\n       CASE SUBSTR(NOM, 1, 1)\n         WHEN 'a' THEN 'group A'\n         WHEN 'b' THEN 'group B'\n         ELSE 'other group'\n       END AS groupe\nFROM   PRODUIT;"},
+        {l:'searched CASE', q:"SELECT NOM,\n       CASE WHEN PRIX > 2    THEN 'expensive'\n            WHEN PRIX IS NULL THEN 'price unknown'\n            ELSE 'cheap'\n       END AS verdict\nFROM   PRODUIT;"},
+        {l:'no ELSE → NULL', q:"SELECT NOM, CASE CAT WHEN 'fruit' THEN 'F' END AS code\nFROM   PRODUIT;"},
+        {l:'DECODE equivalent', q:"SELECT NOM, DECODE(CAT, 'fruit', 'F', 'vegetable', 'V', '?') AS code\nFROM   PRODUIT;"}],
+  subq:[{l:'IN (subquery)', q:"SELECT *\nFROM   PRODUIT\nWHERE  CAT IN (SELECT CAT FROM PRODUIT WHERE PRIX > 2);"},
+        {l:'= (one value)', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX = (SELECT MAX(PRIX) FROM PRODUIT);"},
+        {l:'across two tables', q:"SELECT *\nFROM   PRODUIT\nWHERE  NOM IN (SELECT PRODUIT FROM FOURNISSEUR);"},
+        {l:'the ORA-01427 trap', q:"SELECT *\nFROM   PRODUIT\nWHERE  PRIX = (SELECT PRIX FROM PRODUIT);"}],
+  setop:[{l:'UNION', q:"SELECT NOM FROM BASKET1\nUNION\nSELECT NOM FROM BASKET2;"},
+         {l:'UNION ALL', q:"SELECT NOM FROM BASKET1\nUNION ALL\nSELECT NOM FROM BASKET2;"},
+         {l:'INTERSECT', q:"SELECT NOM FROM BASKET1\nINTERSECT\nSELECT NOM FROM BASKET2;"},
+         {l:'MINUS', q:"SELECT NOM FROM BASKET1\nMINUS\nSELECT NOM FROM BASKET2;"}],
+  join:[{l:'INNER JOIN', q:"SELECT *\nFROM   PRODUIT INNER JOIN FOURNISSEUR\n       ON PRODUIT.NOM = FOURNISSEUR.PRODUIT;"},
+        {l:'LEFT JOIN', q:"SELECT P.NOM, F.NOM AS fournisseur\nFROM   PRODUIT P LEFT JOIN FOURNISSEUR F\n       ON P.NOM = F.PRODUIT;"},
+        {l:'FULL OUTER JOIN', q:"SELECT *\nFROM   PRODUIT FULL OUTER JOIN FOURNISSEUR\n       ON PRODUIT.NOM = FOURNISSEUR.PRODUIT;"},
+        {l:'CROSS JOIN', q:"SELECT *\nFROM   BASKET1 CROSS JOIN BASKET2;"}],
+  dml:[{l:'UPDATE (preview first)', q:"UPDATE PRODUIT\nSET    PRIX = 9\nWHERE  CAT = 'fruit';"},
+       {l:'INSERT', q:"INSERT INTO PRODUIT (ID, NOM, CAT, PRIX)\nVALUES ('4', 'dates', 'fruit', 6);"},
+       {l:'DELETE', q:"DELETE FROM PRODUIT\nWHERE  PRIX IS NULL;"},
+       {l:'undo everything', q:"ROLLBACK;"}]
+};
+const PLAY_FALLBACK = [{l:'whole table', q:"SELECT * FROM PRODUIT;"},
+                       {l:'filtered', q:"SELECT NOM, PRIX FROM PRODUIT WHERE PRIX > 2;"},
+                       {l:'grouped', q:"SELECT CAT, COUNT(*) FROM PRODUIT GROUP BY CAT;"}];
+const ORIGIN_BADGE = {'matched':'b-ok', 'only in left':'b-warn', 'only in right':'b-mut'};
+
+function tracePanel(tr){
+  return '<div style="margin-top:18px"><label class="k">How WHERE voted on every row</label>'+
+    '<div class="tscroll"><table class="res"><thead><tr>'+tr.cols.map(c=>'<th>'+esc(c)+'</th>').join('')+'<th>verdict</th></tr></thead><tbody>'+
+    tr.rows.map(r=>'<tr class="'+(r.v==='TRUE'?'keep':'gone')+'">'+r.vals.map(v=>'<td>'+cell(v)+'</td>').join('')+
+      '<td><span class="badge '+(r.v==='TRUE'?'b-ok':r.v==='UNKNOWN'?'b-warn':'b-no')+'">'+r.v+'</span></td></tr>').join('')+
+    '</tbody></table></div><p class="note">Only <b>TRUE</b> survives. FALSE and UNKNOWN both drop the row — that is why <b>= NULL</b> never matches anything.</p></div>';
+}
+function bucketPanel(bs){
+  return '<div style="margin-top:18px"><label class="k">The buckets GROUP BY built</label><div class="buckets">'+
+    bs.map(b=>'<div class="bucket'+(b.keep?'':' dead')+'"><h5>'+(b.keys.length?b.keys.map(k=>k===null?'NULL':esc(k)).join(' · '):'every row in one bucket')+'</h5>'+
+      '<span class="badge b-mut">'+b.count+' row'+(b.count===1?'':'s')+'</span>'+
+      (b.rows.length?'<div style="margin-top:8px">'+b.rows.map(r=>'<div style="font-size:13px">'+r.map(v=>v===null?'<span class="null">NULL</span>':'<span class="val">'+esc(v)+'</span>').join(' · ')+'</div>').join('')+'</div>':'')+
+      (b.having?'<div style="margin-top:8px"><span class="badge '+(b.keep?'b-ok">kept by HAVING':'b-no">dropped by HAVING')+'</span></div>':'')+
+    '</div>').join('')+'</div>'+
+    '<p class="note">One bucket per distinct value, and <b>NULL is its own bucket</b>. Each bucket becomes exactly one output row, so every column you SELECT must be the grouping key or an aggregate — otherwise ORA-00979.</p></div>';
+}
+function dmlPanel(res){
+  const chB=new Set(res.changedBefore), chA=new Set(res.changedAfter);
+  const lab = res.dml==='DELETE' ? 'deleted' : res.dml==='INSERT' ? 'inserted' : 'changed';
+  const mk=(rows,changed,cls)=>resultTable(res.cols, rows.map((r,i)=>({cells:r.map(cell), _cls:changed.has(i)?cls:'',
+    tag:changed.has(i)?'<span class="badge '+(cls==='gone'?'b-no':'b-ok')+'">'+lab+'</span>':''})), {tagCol:true});
+  const state = res.applied ? '<span class="badge b-ok">applied — the tables on this page really changed</span>'
+                            : '<span class="badge b-warn">preview — nothing written yet</span>';
+  return '<div class="play-res"><h4>'+res.dml+' on '+res.table+' — '+res.affected+' row'+(res.affected===1?'':'s')+' affected</h4>'+
+    '<p style="margin:0 0 12px">'+state+'</p>'+
+    '<div class="side">'+
+      '<div class="sidecol"><label class="k">before</label>'+mk(res.before,chB,res.dml==='DELETE'?'gone':'keep')+'</div>'+
+      '<div class="sidecol"><label class="k">after</label>'+mk(res.after,chA,'keep')+'</div>'+
+    '</div>'+
+    '<p class="note">'+(res.applied?'Every topic on this page now sees the new data. Type <b>ROLLBACK;</b> and press run to go back to the last COMMIT.'
+                                   :'Typing never writes anything. Press <b>apply to the tables</b> when you want the change to be real.')+'</p></div>';
+}
+function playResult(res){
+  if(!res) return '';
+  if(res.err) return '<div class="play-res"><h4>Result</h4><p class="err">'+esc(res.err)+'</p></div>';
+  if(res.dml) return dmlPanel(res);
+  if(res.msg) return '<div class="play-res"><h4>Result</h4><p class="note">'+esc(res.msg)+'</p></div>';
+  const m=res.meta||{};
+  const rows=res.rows.map((r,i)=>({cells:r.map(cell),
+    tag:m.origin?'<span class="badge '+(ORIGIN_BADGE[m.origin[i]]||'b-mut')+'">'+m.origin[i]+'</span>':''}));
+  let h='<div class="play-res"><h4>Result — '+res.rows.length+' row'+(res.rows.length===1?'':'s')+' · re-runs on every keystroke</h4>'+
+    resultTable(res.cols,rows,{tagCol:!!m.origin});
+  if(res.ops) h+='<p class="note">Set operators applied in order: <b>'+res.ops.join(' → ')+'</b>. Each one compares whole rows, and all blocks must have the same column count.</p>';
+  if(m.trace) h+=tracePanel(m.trace);
+  if(m.buckets) h+=bucketPanel(m.buckets);
+  if(m.distinct) h+='<p class="note">DISTINCT compared the <b>whole selected row</b>, not one column — only fully identical rows collapsed.</p>';
+  if(m.origin) h+='<p class="note">Outer joins keep the rows that found no partner and pad the missing side with <b>NULL</b> — that is what the origin badges point at.</p>';
+  return h+'</div>';
+}
+function sqlPanel(r){
+  const p=ST.play;
+  if(p.text[TOPIC]===undefined || !p.dirty[TOPIC]){ p.text[TOPIC]=r.sql; p.dirty[TOPIC]=false; }
+  const txt=p.text[TOPIC];
+  const clean=stripSql(txt).replace(/;+\s*$/,'');
+  const write=/^(INSERT|UPDATE|DELETE)\b/i.test(clean), tx=/^(COMMIT|ROLLBACK)\b/i.test(clean);
+  const preview=runSql(txt,{apply:false});
+  const shown=(p.last && p.lastTopic===TOPIC) ? p.last : preview;
+  const exs=PLAY_EXAMPLES[TOPIC]||PLAY_FALLBACK;
+  const badge = shown.err ? '<span class="badge b-no">error</span>'
+    : shown.dml ? (shown.applied?'<span class="badge b-ok">applied</span>':'<span class="badge b-warn">preview</span>')
+    : shown.rows ? '<span class="badge b-ok">'+shown.rows.length+' row'+(shown.rows.length===1?'':'s')+'</span>'
+    : '<span class="badge b-mut">ok</span>';
+  return '<div class="panel"><h4>The SQL this produces — now rewrite it and watch what you wrote</h4>'+
+    '<textarea id="sqlbox" class="sqlbox" data-sql="1" spellcheck="false" autocapitalize="off" autocomplete="off">'+esc(txt)+'</textarea>'+
+    '<div class="sqlbar"><button class="act" id="runSql">'+((write||tx)?'▶ apply to the tables':'▶ run')+'</button>'+
+      '<button class="act" id="resetSql">↺ back to the generated SQL</button>'+badge+
+      '<span class="badge b-mut">Ctrl+Enter runs · Tab indents</span></div>'+
+    '<div style="margin-top:10px"><label class="k">Try these</label>'+
+      exs.map((x,i)=>'<span class="chip'+(x.q===txt?' on':'')+'" data-example="'+i+'">'+esc(x.l)+'</span>').join('')+'</div>'+
+    (r.note?'<p class="note">'+r.note+'</p>':'')+
+    (p.flash?'<p class="note" style="color:var(--ok)"><b>'+esc(p.flash)+'</b></p>':'')+
+    playResult(shown)+'</div>';
+}
+
+function focusKey(el){
+  if(!el || el===document.body) return null;
+  const d=el.dataset||{};
+  if(d.sql!==undefined) return 'sql';
+  if(d.rk!==undefined) return 'c|'+d.rk+'|'+d.r+'|'+d.c;
+  if(d.hk!==undefined) return 'h|'+d.hk+'|'+d.h;
+  if(d.set) return 's|'+d.set;
+  return el.id ? 'i|'+el.id : null;
+}
+function findByKey(k){
+  if(!k) return null;
+  if(k==='sql') return document.getElementById('sqlbox');
+  const i=k.indexOf('|'), p=k.slice(0,i), rest=k.slice(i+1);
+  if(p==='i') return document.getElementById(rest);
+  if(p==='s') return document.querySelector('[data-set="'+rest+'"]');
+  const q=rest.split('|');
+  if(p==='c') return document.querySelector('[data-rk="'+q[0]+'"][data-r="'+q[1]+'"][data-c="'+q[2]+'"]');
+  if(p==='h') return document.querySelector('[data-hk="'+q[0]+'"][data-h="'+q[1]+'"]');
+  return null;
+}
+
+function render(){
+  const ae=document.activeElement, key=focusKey(ae);
+  let caret = ae && ae.selectionStart!==undefined && ae.selectionStart!==null ? [ae.selectionStart,ae.selectionEnd,ae.scrollTop||0] : null;
+  const pend=ST.play.caret; ST.play.caret=null;
+  if(key==='sql' && pend!=null) caret=[pend,pend,caret?caret[2]:0];
+  const wy=window.scrollY;
+  const menu=document.getElementById('menu'), mx=menu.scrollTop;
+  menu.innerHTML = '<button id="navclose" class="act" aria-label="Close the topic list">✕</button>'+TOPICS.map(g=>'<h3>'+g.g+'</h3>'+g.items.map(it=>'<button data-topic="'+it.id+'" class="'+(it.id===TOPIC?'on':'')+'">'+it.label+'</button>').join('')).join('');
+  menu.scrollTop = mx;
+  const r = R[TOPIC]();
+  document.getElementById('main').innerHTML =
+    '<h2>'+document.querySelector('[data-topic="'+TOPIC+'"]').textContent+'</h2>'+
+    '<p class="what">'+(WHAT[TOPIC]||'')+'</p>'+
+    '<div class="panel"><div class="controls">'+r.controls+'</div></div>'+
+    srcPanel(r.src)+
+    r.body+
+    sqlPanel(r);
+  if(key){
+    const el=findByKey(key);
+    if(el){
+      el.focus({preventScroll:true});
+      if(caret && el.setSelectionRange){ try{ el.setSelectionRange(caret[0],caret[1]); }catch(_){} }
+      if(caret) el.scrollTop=caret[2];
+    }
+  }
+  window.scrollTo(0,wy);
+}
+
+/* ================= events ================= */
+document.addEventListener('click', e=>{
+  if(e.target.id==='navtoggle'){ document.body.classList.toggle('navopen'); return; }
+  if(e.target.id==='navbg' || e.target.id==='navclose'){ document.body.classList.remove('navopen'); return; }
+  const topic=e.target.closest('[data-topic]'); if(topic){ TOPIC=topic.dataset.topic; document.body.classList.remove('navopen'); render(); window.scrollTo(0,0); return; }
+  const pick=e.target.closest('tr[data-pick]'); if(pick && e.target.tagName!=='INPUT' && e.target.tagName!=='BUTTON'){ ST[pick.dataset.pick].sel=+pick.dataset.row; render(); return; }
+  const keep=e.target.closest('[data-keep]'); if(keep){ const c=keep.dataset.keep, st=ST.select; st.keep=st.keep.includes(c)?st.keep.filter(x=>x!==c):[...st.keep,c]; render(); return; }
+  const dk=e.target.closest('[data-dkeep]'); if(dk){ const c=dk.dataset.dkeep, st=ST.distinct; st.keep=st.keep.includes(c)?st.keep.filter(x=>x!==c):[...st.keep,c]; if(!st.keep.length)st.keep=[c]; render(); return; }
+  const cond=e.target.closest('[data-cond]'); if(cond){ ST.where.cond=cond.dataset.cond; render(); return; }
+  if(e.target.id==='applyDml'){ T('PRODUIT').rows.push(ST.dml.vals.slice(0,T('PRODUIT').cols.length)); render(); return; }
+  if(e.target.id==='runSql'){
+    const p=ST.play, res=runSql(p.text[TOPIC]||'',{apply:true});
+    p.last=(res.applied||res.msg)?res:null; p.lastTopic=TOPIC;
+    p.flash=res.err?'':(res.msg||(res.applied?'✔ applied — '+res.affected+' row'+(res.affected===1?'':'s')+' changed in '+res.table:''));
+    render(); return;
+  }
+  if(e.target.id==='resetSql'){ const p=ST.play; delete p.text[TOPIC]; p.dirty[TOPIC]=false; p.last=null; p.lastTopic=null; p.flash=''; render(); return; }
+  const ex=e.target.closest('[data-example]');
+  if(ex){ const p=ST.play, list=PLAY_EXAMPLES[TOPIC]||PLAY_FALLBACK;
+    p.text[TOPIC]=list[+ex.dataset.example].q; p.dirty[TOPIC]=true; p.last=null; p.lastTopic=null; p.flash=''; render(); return; }
+  const b=e.target.closest('button');
+  if(b){
+    if(b.dataset.add){ T(b.dataset.add).rows.push(T(b.dataset.add).cols.map(()=>'')); render(); return; }
+    if(b.dataset.addcol){ const t=T(b.dataset.addcol); t.cols.push('COL'+(t.cols.length+1)); t.rows.forEach(r=>r.push('')); render(); return; }
+    if(b.dataset.del){ const [k,i]=b.dataset.del.split('-'); T(k).rows.splice(+i,1); render(); return; }
+  }
+});
+document.addEventListener('input', e=>{
+  const t=e.target;
+  if(t.dataset.sql!==undefined){ const p=ST.play; p.text[TOPIC]=t.value; p.dirty[TOPIC]=true; p.last=null; p.lastTopic=null; p.flash=''; rerenderBody(); return; }
+  if(t.dataset.rk!==undefined){ T(t.dataset.rk).rows[+t.dataset.r][+t.dataset.c]=t.value===''?null:t.value; rerenderBody(); return; }
+  if(t.dataset.hk!==undefined){ T(t.dataset.hk).cols[+t.dataset.h]=t.value; rerenderBody(); return; }
+  const path=t.dataset.set; if(!path) return;
+  const parts=path.split('.');
+  let val=t.value;
+  if(path==='case.hasElse') val = t.value==='1';
+  if(path==='case.mode'){ ST.case.branches=(val==='searched'?CASE_SEARCHED:CASE_SIMPLE).map(b=>b.slice()); ST.case.elseVal=val==='searched'?'cheap':'other group'; }
+  if(path==='pattern.op') ST.pattern.col = ST.pattern.cols[val] || ST.pattern.col;
+  if(path==='pattern.col') ST.pattern.cols[ST.pattern.op] = val;
+  if(parts.length===3){ ST[parts[0]][parts[1]][+parts[2]]=val===''?null:val; }
+  else ST[parts[0]][parts[1]]=val;
+  rerenderBody();
+});
+document.addEventListener('change', e=>{ if(e.target.tagName==='SELECT'&&e.target.dataset.set){ e.target.dispatchEvent(new Event('input',{bubbles:true})); } });
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ document.body.classList.remove('navopen'); return; }
+  if(e.target.id!=='sqlbox') return;
+  const p=ST.play, t=e.target;
+  if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); const b=document.getElementById('runSql'); if(b) b.click(); return; }
+  if(e.key!=='Tab') return;
+  e.preventDefault();
+  const s=t.selectionStart, en=t.selectionEnd;
+  t.value=t.value.slice(0,s)+'  '+t.value.slice(en);
+  p.text[TOPIC]=t.value; p.dirty[TOPIC]=true; p.last=null; p.lastTopic=null; p.flash=''; p.caret=s+2;
+  rerenderBody();
+});
+let raf=0;
+function rerenderBody(){ cancelAnimationFrame(raf); raf=requestAnimationFrame(render); }
+render();
+</script>
+</body>
+</html>
